@@ -2,16 +2,27 @@
 local wezterm = require("wezterm")
 -- This will hold the configuration.
 local config = wezterm.config_builder()
-
-config.font = wezterm.font({family = "Hack Nerd Font Mono", weight = 'Bold'})
+local act = wezterm.action
+config.font = wezterm.font({ family = "Hack Nerd Font Mono", weight = 'Bold' })
 config.color_scheme = 'Monokai Pro (Gogh)'
 config.colors = {
-    background = 'black',
-    split = '#503B75'
+  background = 'black',
+  split = '#503B75'
 }
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 10
 config.window_decorations = "RESIZE"
+config.keys = {
+  { key = 'LeftArrow',  mods = "ALT", action = act.ActivatePaneDirection 'Left' },
+  { key = 'RightArrow', mods = "ALT", action = act.ActivatePaneDirection 'Right' },
+  { key = 'UpArrow',    mods = "ALT", action = act.ActivatePaneDirection 'Up' },
+  { key = 'DownArrow',  mods = "ALT", action = act.ActivatePaneDirection 'Down' },
+
+}
+config.inactive_pane_hsb = {
+  saturation = 0.45,
+  brightness = 0.7
+}
 
 local function segments_for_right_status(window)
   return {
