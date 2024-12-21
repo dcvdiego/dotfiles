@@ -21,7 +21,7 @@ config.keys = {
 }
 config.inactive_pane_hsb = {
   saturation = 0.45,
-  brightness = 0.7
+  brightness = 0.65
 }
 
 local function segments_for_right_status(window)
