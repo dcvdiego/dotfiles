@@ -1,0 +1,11 @@
+customCommands:
+  - key: 'f'
+    command: "git difftool -y {{.SelectedLocalCommit.Sha}} -- {{.SelectedCommitFile.Name}}"
+    context: 'commitFiles'
+    description: 'Compare (difftool) with local copy'
+  - key: "C"
+    command: "git cz c"
+    description: "commit with commitizen"
+    context: "files"
+    loadingText: "opening commitizen commit tool"
+    subprocess: true

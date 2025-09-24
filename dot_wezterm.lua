@@ -3,13 +3,15 @@ local wezterm = require("wezterm")
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 local act = wezterm.action
-config.font = wezterm.font({ family = "Hack Nerd Font Mono", weight = 'Bold' })
-config.color_scheme = 'Monokai Pro (Gogh)'
+config.font = wezterm.font({ family = "Monaspace Neon", weight = 'Bold' })
+config.harfbuzz_features = { 'ss01=0', 'ss02=0', 'ss03=0', 'ss04=0', 'ss05=0' }
+config.font_size = 16
+config.color_scheme = 'Monokai Pro Ristretto (Gogh)'
 config.colors = {
   background = 'black',
   split = '#503B75'
 }
-config.window_background_opacity = 0.8
+config.window_background_opacity = 0.6
 config.macos_window_background_blur = 10
 config.window_decorations = "RESIZE"
 config.keys = {

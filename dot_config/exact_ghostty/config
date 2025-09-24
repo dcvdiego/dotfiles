@@ -1,0 +1,9 @@
+custom-shader = shaders/cursor_smear.glsl
+
+theme = "Monokai Pro Ristretto"
+font-family = "Monaspace Neon"
+font-style= Bold
+background-opacity = 0.6
+background-blur-radius = 10
+background = black
+font-size = 18
