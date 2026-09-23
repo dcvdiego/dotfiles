@@ -87,8 +87,7 @@ brew "ffmpeg-full", link: true
 brew "fx"
 # Command-line fuzzy finder written in Go
 brew "fzf"
-# Interact with Google Gemini AI models from the command-line
-brew "gemini-cli", link: false
+# Interact with Google Gemini AI models from the command-line (npm global, see npm entries)
 # GitHub command-line tool
 brew "gh"
 # Syntax-highlighting pager for git and diff output

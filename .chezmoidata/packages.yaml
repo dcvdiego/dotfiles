@@ -66,4 +66,14 @@ packages:
   - gnupg
   - difftastic
   - xclip
+  - atuin
+  - bun
+  - pnpm
+  - uv
+  - air
   # gemini-cli installed with link: false (name conflict) - see install script
+
+# npm globals (installed via brew bundle's npm DSL; node provided by mise)
+npm:
+  - "@google/gemini-cli"
+  - "@earendil-works/pi-coding-agent"

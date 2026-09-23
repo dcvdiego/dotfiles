@@ -418,8 +418,7 @@ function krestart() {
 # Postman MCP
 # POSTMAN_API_KEY is in ~/.config/zsh/secrets.zsh
 
-# opencode
-export PATH=/Users/diegochuman/.opencode/bin:$PATH
+# opencode is brew-installed (anomalyco/tap)
 export DD_SITE=datadoghq.eu
 
 
@@ -433,7 +432,7 @@ export PATH="/Users/diegochuman/.local/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-. "$HOME/.atuin/bin/env"
+# atuin is brew-installed (on PATH); only the zsh hook remains (see zvm block above)
 
 # yazi: cd into the directory yazi was in on quit
 function ya() {

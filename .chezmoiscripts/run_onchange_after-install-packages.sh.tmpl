@@ -40,12 +40,16 @@ fi
 brew bundle --file=/dev/stdin <<'BREWEOF'
 tap "anomalyco/tap"
 tap "datadog-labs/pack"
+tap "golangci/tap"
 {{ range .packages -}}
 brew "{{ . }}"
 {{ end -}}
-brew "gemini-cli", link: false
+brew "golangci/tap/golangci-lint"
 brew "anomalyco/tap/opencode", trusted: true
 brew "datadog-labs/pack/pup", trusted: true
+{{ range .npm -}}
+npm "{{ . }}"
+{{ end -}}
 BREWEOF
 
 echo "Done. To make zsh the default shell: chsh -s \$(which zsh)"
