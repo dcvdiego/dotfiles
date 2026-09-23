@@ -95,11 +95,6 @@ ZSH_THEME=""
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-# Load nvm lazily so new shells don't pay for node tooling up front.
-zstyle ':omz:plugins:nvm' lazy yes
-zstyle ':omz:plugins:nvm' autoload yes
-zstyle ':omz:plugins:nvm' silent-autoload yes
-
 plugins=(
     alias-finder
     argocd
@@ -119,7 +114,6 @@ plugins=(
     kubectl
     macos
     npm
-    nvm
     safe-paste
     sudo
     vscode
@@ -138,6 +132,9 @@ ZVM_INIT_MODE=sourcing
 # atuin must init inside the zvm hook or zsh-vi-mode swallows its keybinds
 zvm_after_init_commands+=('eval "$(atuin init zsh)"')
 source $ZSH/oh-my-zsh.sh
+
+# mise: runtime version manager (go, node, fab, fit). Replaces asdf/nvm/pyenv.
+eval "$(mise activate zsh)"
 
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
@@ -191,10 +188,6 @@ if [ -d "$HOMEBREW_PREFIX/opt/ruby/bin" ]; then
     path=("$(gem environment gemdir)/bin" $path)
   fi
 fi
-
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 
 # Set up fzf key bindings and fuzzy completion
 eval "$(fzf --zsh)"
@@ -299,10 +292,8 @@ export FONOA_GITHUB_LOGIN=dcvdiego
 # Secrets live in ~/.config/zsh/secrets.zsh (unmanaged, excluded via .chezmoiignore)
 [ -f "$HOME/.config/zsh/secrets.zsh" ] && source "$HOME/.config/zsh/secrets.zsh"
 export GOPRIVATE=github.com/Fonoa-Tech/*
-[[ -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]] && source "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-export PATH="$(go env GOBIN):$PATH"
+command -v go >/dev/null 2>&1 && export PATH="$(go env GOBIN):$PATH"
 
 export CLOUDSDK_ROOT="$HOME/google-cloud-sdk"
 if [ -d "$CLOUDSDK_ROOT/bin" ]; then

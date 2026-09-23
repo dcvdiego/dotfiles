@@ -95,8 +95,6 @@ brew "gh"
 brew "git-delta"
 # GNU Privacy Guard (OpenPGP)
 brew "gnupg"
-# Open source programming language to build simple/reliable/efficient software
-brew "go", link: false
 # Database migrations CLI tool
 brew "golang-migrate"
 # Log analysis TUI

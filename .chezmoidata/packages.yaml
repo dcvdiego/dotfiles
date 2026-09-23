@@ -31,13 +31,10 @@ packages:
   - lazygit
   - lefthook
   - commitizen
-  # languages & runtimes (mise could replace asdf/nvm/pyenv eventually)
-  - go
+  # languages & runtimes (version-pinned runtimes managed by mise, not brew)
+  - mise
   - deno
   - rust
-  - asdf
-  - nvm
-  - pyenv
   - python@3.12
   - cmake
   # containers / data / infra
