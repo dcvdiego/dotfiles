@@ -47,9 +47,6 @@ brew "{{ . }}"
 brew "golangci/tap/golangci-lint"
 brew "anomalyco/tap/opencode", trusted: true
 brew "datadog-labs/pack/pup", trusted: true
-{{ range .npm -}}
-npm "{{ . }}"
-{{ end -}}
 BREWEOF
 
 echo "Done. To make zsh the default shell: chsh -s \$(which zsh)"

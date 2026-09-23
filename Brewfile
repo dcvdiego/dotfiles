@@ -30,7 +30,6 @@ brew "argocd"
 # Distributed revision control system
 brew "git"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
-brew "asdf"
 # Cryptography and SSL/TLS Toolkit
 brew "openssl@3"
 # Microsoft Azure CLI 2.0
@@ -87,7 +86,6 @@ brew "ffmpeg-full", link: true
 brew "fx"
 # Command-line fuzzy finder written in Go
 brew "fzf"
-# Interact with Google Gemini AI models from the command-line (npm global, see npm entries)
 # GitHub command-line tool
 brew "gh"
 # Syntax-highlighting pager for git and diff output
@@ -129,7 +127,6 @@ brew "mtr"
 # Ambitious Vim-fork focused on extensibility and agility
 brew "neovim"
 # Manage multiple Node.js versions
-brew "nvm"
 # Create, run, and share large language models (LLMs)
 brew "ollama"
 # Development kit for the Java programming language
@@ -149,7 +146,6 @@ brew "postgresql@14"
 # Theme for zsh
 brew "powerlevel10k"
 # Python version management
-brew "pyenv"
 # Easily download, build, install, upgrade, and uninstall Python packages
 brew "python-setuptools"
 # Interpreted, interactive, object-oriented programming language
@@ -398,5 +394,3 @@ vscode "wix.vscode-import-cost"
 vscode "xabikos.javascriptsnippets"
 vscode "yoavbls.pretty-ts-errors"
 uv "harlequin[postgres]"
-npm "@earendil-works/pi-coding-agent"
-npm "@google/gemini-cli"

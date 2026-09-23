@@ -73,9 +73,4 @@ packages:
   - air
   # cross-manager inventory/audit: `mpm outdated`, `mpm orphans`, `mpm installed`
   - meta-package-manager
-  # gemini-cli installed with link: false (name conflict) - see install script
-
-# npm globals (installed via brew bundle's npm DSL; node provided by mise)
-npm:
-  - "@google/gemini-cli"
-  - "@earendil-works/pi-coding-agent"
+  # gemini-cli + pi-coding-agent are npm globals managed by MISE (npm: backend), not brew
