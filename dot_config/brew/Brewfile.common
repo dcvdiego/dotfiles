@@ -1,0 +1,85 @@
+# Brewfile.common - cross-platform CLI tools, installed on BOTH macOS and WSL/Linux.
+# Used by .chezmoiscripts/run_once_after-brewfile-linux.sh.tmpl (WSL installs
+# Homebrew-on-Linux and bundles this file; apt alone can't provide fresh
+# versions of the modern Rust/Go tools below).
+# macOS-only stuff (GUI casks, colima, pinentry-mac, etc.) stays in ~/Brewfile.
+
+# === Shell & prompt ===
+brew "powerlevel10k"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "zsh-vi-mode"
+brew "zoxide"
+brew "thefuck"
+brew "fzf"
+brew "tmux"
+brew "tmuxinator"
+brew "sesh"
+
+# === Files & search ===
+brew "eza"
+brew "fd"
+brew "ripgrep"
+brew "bat"
+brew "jq"
+brew "tree"
+brew "sevenzip"
+brew "yazi"
+brew "tlrc"
+
+# === Git & GitHub ===
+brew "git"
+brew "gh"
+brew "git-delta"
+brew "lazygit"
+brew "lefthook"
+brew "commitizen"
+
+# === Languages & runtimes ===
+brew "go"
+brew "deno"
+brew "rust"
+brew "asdf"
+brew "nvm"
+brew "pyenv"
+brew "python@3.12"
+brew "cmake"
+
+# === Containers / data / infra ===
+brew "argocd"
+brew "kubernetes-cli"
+brew "docker"
+brew "docker-buildx"
+brew "docker-compose"
+brew "podman"
+brew "golang-migrate"
+brew "postgresql@14"
+brew "pgcli"
+brew "redis"
+brew "azure-cli"
+
+# === TUIs & system utils ===
+brew "btop"
+brew "fastfetch"
+brew "neovim"
+brew "lazysql"
+brew "gum"
+brew "fx"
+brew "jnv"
+brew "tabiew"
+brew "wtfutil"
+brew "cmatrix"
+brew "mtr"
+brew "tailscale"
+brew "ollama"
+brew "gnupg"
+brew "difftastic"
+brew "xclip" # X11 clipboard (WSLg / X forwarding)
+
+# === AI / agent tooling ===
+brew "gemini-cli", link: false
+brew "block-goose-cli"
+tap "anomalyco/tap"
+brew "anomalyco/tap/opencode", trusted: true
+tap "datadog-labs/pack"
+brew "datadog-labs/pack/pup", trusted: true
