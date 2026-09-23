@@ -1,0 +1,52 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "brew not found; install Homebrew then re-run: chezmoi init --apply"
+    exit 0
+fi
+
+# Full macOS state (taps, formulae, casks, vscode extensions).
+# Brewfile content is embedded so this script re-runs whenever it changes.
+brew bundle --file=/dev/stdin <<'BREWEOF'
+{{ include "Brewfile" | trim -}}
+BREWEOF
+{{ else if eq .chezmoi.os "linux" -}}
+#!/bin/sh
+set -eu
+
+# apt prerequisites (sudo required)
+if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update -y
+    sudo apt-get install -y zsh git curl file build-essential procps
+fi
+
+# Homebrew-on-Linux: identical names/versions as macOS
+if ! command -v brew >/dev/null 2>&1; then
+    [ -x /home/linuxbrew/.linuxbrew/bin/brew ] || \
+        NONINTERACTIVE=1 /bin/bash -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+[ -x /home/linuxbrew/.linuxbrew/bin/brew ] && \
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "brew unavailable; skipping package install"
+    exit 0
+fi
+
+# Cross-platform set from .chezmoidata/packages.yaml (embedded => re-runs on change)
+brew bundle --file=/dev/stdin <<'BREWEOF'
+tap "anomalyco/tap"
+tap "datadog-labs/pack"
+{{ range .packages -}}
+brew "{{ . }}"
+{{ end -}}
+brew "gemini-cli", link: false
+brew "anomalyco/tap/opencode", trusted: true
+brew "datadog-labs/pack/pup", trusted: true
+BREWEOF
+
+echo "Done. To make zsh the default shell: chsh -s \$(which zsh)"
+{{ end -}}

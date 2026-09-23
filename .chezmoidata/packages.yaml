@@ -1,0 +1,72 @@
+# Cross-platform CLI packages (macOS + WSL/Linux), single source of truth.
+# Rendered into .chezmoiscripts/run_onchange_after-install-packages.sh.tmpl;
+# adding/removing an entry here re-triggers the installer on every machine.
+# macOS-only extras (casks, vscode extensions, mac-only formulae) live in Brewfile.
+packages:
+  # shell & prompt
+  - powerlevel10k
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+  - zsh-vi-mode
+  - zoxide
+  - thefuck
+  - fzf
+  - tmux
+  - tmuxinator
+  - sesh
+  # files & search
+  - eza
+  - fd
+  - ripgrep
+  - bat
+  - jq
+  - tree
+  - sevenzip
+  - yazi
+  - tlrc
+  # git & github
+  - git
+  - gh
+  - git-delta
+  - lazygit
+  - lefthook
+  - commitizen
+  # languages & runtimes (mise could replace asdf/nvm/pyenv eventually)
+  - go
+  - deno
+  - rust
+  - asdf
+  - nvm
+  - pyenv
+  - python@3.12
+  - cmake
+  # containers / data / infra
+  - argocd
+  - kubernetes-cli
+  - docker
+  - docker-buildx
+  - docker-compose
+  - podman
+  - golang-migrate
+  - postgresql@14
+  - pgcli
+  - redis
+  - azure-cli
+  # tuis & system utils
+  - btop
+  - fastfetch
+  - neovim
+  - lazysql
+  - gum
+  - fx
+  - jnv
+  - tabiew
+  - wtfutil
+  - cmatrix
+  - mtr
+  - tailscale
+  - ollama
+  - gnupg
+  - difftastic
+  - xclip
+  # gemini-cli installed with link: false (name conflict) - see install script
