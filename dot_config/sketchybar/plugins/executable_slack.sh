@@ -1,20 +1,32 @@
-#!/usr/bin/env sh
-STATUS_LABEL=$(lsappinfo info -only StatusLabel "Slack")
+#!/usr/bin/env bash
+# Slack unread indicator.
+#
+# The old `lsappinfo info -only StatusLabel "Slack"` mechanism stopped working on
+# macOS 27 (status item not registered, especially with mirrored displays), so we
+# read Slack's window title via System Events instead:
+#   "! <channel> - <workspace> - N new item(s) - Slack"  -> unread activity
 ICON="󰒱"
-if [[ $STATUS_LABEL =~ \"label\"=\"([^\"]*)\" ]]; then
-    LABEL="${BASH_REMATCH[1]}"
 
-    if [[ $LABEL == "" ]]; then
-        ICON_COLOR="0xffa6da95"
-    elif [[ $LABEL == "•" ]]; then
-        ICON_COLOR="0xffeed49f"
-    elif [[ $LABEL =~ ^[0-9]+$ ]]; then
-        ICON_COLOR="0xffed8796"
-    else
-        exit 0
-    fi
-else
+if ! pgrep -xq Slack; then
+  sketchybar --set "${NAME:-slack}" drawing=off
   exit 0
 fi
+sketchybar --set "${NAME:-slack}" drawing=on
 
-sketchybar --set $NAME icon=$ICON label="${LABEL}" icon.color=${ICON_COLOR}
+TITLES=$(osascript \
+  -e 'tell application "System Events" to tell process "Slack"' \
+  -e 'get value of attribute "AXTitle" of every window' \
+  -e 'end tell' 2>/dev/null)
+
+LABEL=""
+ICON_COLOR="0xffa6da95" # green: no unreads
+
+if [[ $TITLES =~ ([0-9]+)[[:space:]]new[[:space:]]items? ]]; then
+  LABEL="${BASH_REMATCH[1]}"
+  ICON_COLOR="0xffed8796" # red: unread messages
+elif [[ $TITLES == !* || $TITLES =~ ,![[:space:]] || $TITLES =~ -![[:space:]] ]]; then
+  LABEL="•"
+  ICON_COLOR="0xffeed49f" # yellow: activity, no count
+fi
+
+sketchybar --set "${NAME:-slack}" icon=$ICON label="${LABEL}" icon.color=${ICON_COLOR}

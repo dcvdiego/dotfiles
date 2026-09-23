@@ -5,22 +5,25 @@
 # focused application in the $INFO variable:
 # https://felixkratz.github.io/SketchyBar/config/events#events-and-scripting
 
-AEROSPACE_FOCUSED_MONITOR_NO=$(aerospace list-workspaces --focused)
-AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR=$(aerospace list-windows --workspace $AEROSPACE_FOCUSED_MONITOR_NO | awk -F'|' '{gsub(/^ *| *$/, "", $2); print $2}')
-
 if [ "$SENDER" = "front_app_switched" ]; then
-  #echo name:$NAME INFO: $INFO SENDER: $SENDER, SID: $SID >> ~/aaaa
   sketchybar --set "$NAME" label="$INFO" icon.background.image="app.$INFO" icon.background.image.scale=0.8
 
-  apps=$AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR
+  FOCUSED_WS=$(komorebic query focused-workspace-name 2>/dev/null)
+  KOMOREBI_STATE=$(komorebic state 2>/dev/null)
+
+  apps=$(echo "$KOMOREBI_STATE" | jq -r "
+    .monitors.elements[].workspaces.elements[] |
+    select(.name == \"$FOCUSED_WS\") |
+    .containers.elements[].windows.elements[].details.exe
+  " 2>/dev/null)
+
   icon_strip=" "
-  if [ "${apps}" != "" ]; then
-    while read -r app
-    do
+  if [ -n "$apps" ]; then
+    while read -r app; do
       icon_strip+=" $($CONFIG_DIR/plugins/icon_map.sh "$app")"
-    done <<< "${apps}"
+    done <<< "$apps"
   else
     icon_strip=" —"
   fi
-  sketchybar --set space.$AEROSPACE_FOCUSED_MONITOR_NO label="$icon_strip"
+  sketchybar --set space.$FOCUSED_WS label="$icon_strip"
 fi

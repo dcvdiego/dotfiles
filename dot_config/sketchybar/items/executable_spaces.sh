@@ -1,23 +1,29 @@
 #!/bin/sh
 
-#SPACE_ICONS=("1" "2" "3" "4")
+# Register komorebi workspace change event
+sketchybar --add event komorebi_workspace_change
 
-# Destroy space on right click, focus space on left click.
-# New space by left clicking separator (>)
+# Helper: get workspace info from komorebi state
+KOMOREBI_STATE=$(komorebic state 2>/dev/null)
 
-sketchybar --add event aerospace_workspace_change
-#echo $(aerospace list-workspaces --monitor 1 --visible no --empty no) >> ~/aaaa
+# Get number of monitors
+MONITOR_COUNT=$(echo "$KOMOREBI_STATE" | jq '.monitors.elements | length')
 
-for m in $(aerospace list-monitors | awk '{print $1}'); do
-  for i in $(aerospace list-workspaces --monitor $m); do
-    sid=$i
+for m_idx in $(seq 0 $(( MONITOR_COUNT - 1 ))); do
+  # Monitor display index (1-based for sketchybar)
+  display_idx=$(( m_idx + 1 ))
+
+  # Get workspace names for this monitor
+  workspaces=$(echo "$KOMOREBI_STATE" | jq -r ".monitors.elements[$m_idx].workspaces.elements[].name")
+
+  for sid in $workspaces; do
     space=(
       space="$sid"
       icon="$sid"
       icon.highlight_color=$RED
       icon.padding_left=10
       icon.padding_right=10
-      display=$m
+      display=$display_idx
       padding_left=2
       padding_right=2
       label.padding_right=20
@@ -34,14 +40,18 @@ for m in $(aerospace list-monitors | awk '{print $1}'); do
                --set space.$sid "${space[@]}" \
                --subscribe space.$sid mouse.clicked
 
-    apps=$(aerospace list-windows --workspace $sid | awk -F'|' '{gsub(/^ *| *$/, "", $2); print $2}')
+    # Get window apps for this workspace
+    apps=$(echo "$KOMOREBI_STATE" | jq -r "
+      .monitors.elements[$m_idx].workspaces.elements[] |
+      select(.name == \"$sid\") |
+      .containers.elements[].windows.elements[].details.exe
+    " 2>/dev/null)
 
     icon_strip=" "
-    if [ "${apps}" != "" ]; then
-      while read -r app
-      do
+    if [ -n "$apps" ]; then
+      while read -r app; do
         icon_strip+=" $($CONFIG_DIR/plugins/icon_map.sh "$app")"
-      done <<< "${apps}"
+      done <<< "$apps"
     else
       icon_strip=" —"
     fi
@@ -49,12 +59,17 @@ for m in $(aerospace list-monitors | awk '{print $1}'); do
     sketchybar --set space.$sid label="$icon_strip"
   done
 
-  for i in $(aerospace list-workspaces --monitor $m --empty); do
+  # Hide empty workspaces
+  empty_workspaces=$(echo "$KOMOREBI_STATE" | jq -r "
+    .monitors.elements[$m_idx].workspaces.elements[] |
+    select((.containers.elements | length) == 0) |
+    .name
+  " 2>/dev/null)
+
+  for i in $empty_workspaces; do
     sketchybar --set space.$i display=0
   done
-  
 done
-
 
 space_creator=(
   icon=􀆊
@@ -63,19 +78,10 @@ space_creator=(
   padding_right=8
   label.drawing=off
   display=active
-  #click_script='yabai -m space --create'
   script="$PLUGIN_DIR/space_windows.sh"
-  #script="$PLUGIN_DIR/aerospace.sh"
   icon.color=$WHITE
 )
 
-# sketchybar --add item space_creator left               \
-#            --set space_creator "${space_creator[@]}"   \
-#            --subscribe space_creator space_windows_change
 sketchybar --add item space_creator left               \
            --set space_creator "${space_creator[@]}"   \
-           --subscribe space_creator aerospace_workspace_change
-
-# sketchybar  --add item change_windows left \
-#             --set change_windows script="$PLUGIN_DIR/change_windows.sh" \
-#             --subscribe change_windows space_changes           
+           --subscribe space_creator komorebi_workspace_change

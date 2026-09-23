@@ -10,12 +10,17 @@ fi
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
+export XDG_CONFIG_HOME="$HOME/.config"
+
+# Keep PATH entries unique while preserving the first occurrence.
+typeset -U path PATH
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# Powerlevel10k is loaded later, so leave the Oh My Zsh theme empty.
+ZSH_THEME=""
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -77,25 +82,52 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
+
+# Load nvm lazily so new shells don't pay for node tooling up front.
+zstyle ':omz:plugins:nvm' lazy yes
+zstyle ':omz:plugins:nvm' autoload yes
+zstyle ':omz:plugins:nvm' silent-autoload yes
+
 plugins=(
-    git
-    zsh-autosuggestions
-    pnpm
-    aws
+    alias-finder
+    argocd
     brew
+    colored-man-pages
     command-not-found
+    docker
+    docker-compose
+    extract
+    fzf
+    gh
     git
     git-auto-fetch
-    iterm2
+    golang
+    herdr
+    history
+    kubectl
+    macos
     npm
     nvm
+    safe-paste
+    sudo
     vscode
     web-search
     yarn
+    zoxide
+    zsh-autocomplete
     )
 
+ZSH_DISABLE_COMPFIX=true
+
+ZVM_INIT_MODE=sourcing
+
+source /opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+# atuin must init inside the zvm hook or zsh-vi-mode swallows its keybinds
+zvm_after_init_commands+=('eval "$(atuin init zsh)"')
 source $ZSH/oh-my-zsh.sh
-source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -122,22 +154,30 @@ source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 alias brewup="brew update; brew upgrade; brew cleanup; brew doctor"
 alias openzsh="vscr ~/.zshrc"
 alias rezsh="source ~/.zshrc"
-alias cat="bat"
+# alias cat="bat"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/platform-toolsexport PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+
+path=(
+  "$HOME/.local/bin"
+  /usr/local/bin
+  /usr/bin
+  /bin
+  /run/current-system/sw/bin
+  "$HOME/.yarn/bin"
+  "$HOME/.config/yarn/global/node_modules/.bin"
+  "$ANDROID_HOME/emulator"
+  "$ANDROID_HOME/platform-tools"
+  $path
+)
 
 if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
-  export PATH=/opt/homebrew/opt/ruby/bin:$PATH
-  export PATH=`gem environment gemdir`/bin:$PATH
+  path=(/opt/homebrew/opt/ruby/bin $path)
+  if command -v gem >/dev/null 2>&1; then
+    path=("$(gem environment gemdir)/bin" $path)
+  fi
 fi
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export PATH="/run/current-system/sw/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH=/bin:/usr/bin:/usr/local/bin:${PATH}
 
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
@@ -151,6 +191,7 @@ eval "$(fzf --zsh)"
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+export DOCKER_DEFAULT_PLATFORM=linux/amd64 
 
 # Use fd (https://github.com/sharkdp/fd) for listing path candidates.
 # - The first argument to the function ($1) is the base path to start traversal
@@ -192,9 +233,25 @@ alias ls="eza --icons=always"
 
 # ---- TheFuck -----
 
-# thefuck alias
-eval $(thefuck --alias)
-eval $(thefuck --alias fk)
+_lazy_load_thefuck() {
+  if [[ -n "${_THEFUCK_LOADED:-}" ]]; then
+    return
+  fi
+
+  _THEFUCK_LOADED=1
+  eval "$(thefuck --alias)"
+  eval "$(thefuck --alias fk)"
+}
+
+fuck() {
+  _lazy_load_thefuck
+  fuck "$@"
+}
+
+fk() {
+  _lazy_load_thefuck
+  fk "$@"
+}
 
 # ---- Zoxide (better cd) ----
 eval "$(zoxide init zsh)"
@@ -217,7 +274,169 @@ setopt hist_expire_dups_first
 setopt hist_ignore_dups
 setopt hist_verify
 
-# completion using arrow keys (based on history)
-bindkey '^[[A' history-search-backward
-bindkey '^[[B' history-search-forward
 PATH=~/.console-ninja/.bin:$PATH
+
+export EDITOR=nvim
+
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+export FONOA_GITHUB_LOGIN=dcvdiego
+# Secrets live in ~/.config/zsh/secrets.zsh (unmanaged, excluded via .chezmoiignore)
+[ -f "$HOME/.config/zsh/secrets.zsh" ] && source "$HOME/.config/zsh/secrets.zsh"
+export GOPRIVATE=github.com/Fonoa-Tech/*
+source /opt/homebrew/opt/asdf/libexec/asdf.sh
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+export PATH="$(go env GOBIN):$PATH"
+
+export CLOUDSDK_ROOT="$HOME/google-cloud-sdk"
+if [ -d "$CLOUDSDK_ROOT/bin" ]; then
+  path=("$CLOUDSDK_ROOT/bin" $path)
+fi
+
+_lazy_load_gcloud_completion() {
+  [[ -n "${_GCLOUD_COMPLETION_LOADED:-}" ]] && return
+  _GCLOUD_COMPLETION_LOADED=1
+
+  if [ -f "$CLOUDSDK_ROOT/completion.zsh.inc" ]; then
+    source "$CLOUDSDK_ROOT/completion.zsh.inc"
+  fi
+}
+
+for _gcloud_cmd in gcloud gsutil bq; do
+  eval "
+  ${_gcloud_cmd}() {
+    _lazy_load_gcloud_completion
+    command ${_gcloud_cmd} \"\$@\"
+  }
+  "
+done
+unset _gcloud_cmd
+
+# pnpm
+export PNPM_HOME="/Users/diegochuman/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+token() {
+  [[ -z "$1" ]] && echo "Which tenant?" && return 1
+  [[ -z "$2" ]] && echo "Which env?" && return 1
+
+  local sandbox=false
+  [[ "$2" == "demo" ]] && sandbox=true
+
+  fit passport token tenant-impersonation \
+    -j "$(jq -nc --arg tenant "$1" --argjson sandbox "$sandbox" '{tenant:$tenant, sandbox:$sandbox}')"
+}
+
+# ── dev-notes: background session note-taker ──────────────────────────────────
+# Wraps opencode and codex so that after each session ends, generate-note.sh
+# runs in the background to write a note to the Obsidian vault.
+
+_dev_notes_fire() {
+  local tool="$1"
+  local _branch _repo _remote
+  _branch=$(git branch --show-current 2>/dev/null || true)
+  _repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || true)
+  _remote=$(git remote get-url origin 2>/dev/null || true)
+  (GIT_BRANCH="$_branch" GIT_REPO="$_repo" GIT_REMOTE="$_remote" TOOL="$tool" \
+    ~/.config/dev-notes/generate-note.sh </dev/null >/dev/null 2>&1) &
+  disown $!
+}
+
+function opencode() {
+  command opencode "$@"
+  local _exit=$?
+  _dev_notes_fire "opencode"
+  return $_exit
+}
+
+function codex() {
+  command codex "$@"
+  local _exit=$?
+  _dev_notes_fire "codex"
+  return $_exit
+}
+
+function copilot() {
+  local _start_epoch
+  _start_epoch=$(date +%s)
+  command copilot "$@"
+  local _exit=$?
+  # Pass the start epoch so the script finds the right session-state folder
+  GIT_BRANCH="$(git branch --show-current 2>/dev/null || true)" \
+  GIT_REPO="$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || true)" \
+  GIT_REMOTE="$(git remote get-url origin 2>/dev/null || true)" \
+  TOOL=copilot \
+  SESSION_START_EPOCH="$_start_epoch" \
+  ~/.config/dev-notes/generate-note.sh </dev/null >/dev/null 2>&1 &
+  disown $!
+  return $_exit
+}
+
+# Keep skhd coupled to Komorebi rather than running it at login, where it
+# conflicts with AeroSpace's global shortcuts.
+function komorebic() {
+  case "$1" in
+    start)
+      command komorebic "$@"
+      local status=$?
+      if (( status == 0 )); then
+        pkill -x skhd 2>/dev/null
+        /opt/homebrew/bin/skhd -c "$HOME/.config/komorebi/skhdrc" \
+          >/tmp/skhd.out.log 2>/tmp/skhd.err.log &!
+      fi
+      return $status
+      ;;
+    stop)
+      pkill -x skhd 2>/dev/null
+      command komorebic "$@"
+      ;;
+    *)
+      command komorebic "$@"
+      ;;
+  esac
+}
+
+function krestart() {
+  komorebic stop
+  sleep 2
+  pkill -x komorebi 2>/dev/null
+  sleep 2
+  komorebic start
+}
+
+# Postman MCP
+# POSTMAN_API_KEY is in ~/.config/zsh/secrets.zsh
+
+# opencode
+export PATH=/Users/diegochuman/.opencode/bin:$PATH
+export DD_SITE=datadoghq.eu
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/diegochuman/.local/bin:$PATH"
+
+# bun completions
+[ -s "/Users/diegochuman/.bun/_bun" ] && source "/Users/diegochuman/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+. "$HOME/.atuin/bin/env"
+
+# yazi: cd into the directory yazi was in on quit
+function ya() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
+# hj: any herdr command, piped into jnv for interactive JSON exploration
+hj() { herdr "$@" | jnv; }

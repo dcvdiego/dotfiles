@@ -2,8 +2,27 @@ custom-shader = shaders/cursor_smear.glsl
 
 theme = "Monokai Pro Ristretto"
 font-family = "Monaspace Neon"
-font-style= Bold
+# font-style= Bold
+font-family-bold = "Monaspace Xenon"
+ font-family-italic = "Monaspace Radon"
+ font-family-bold-italic = "Monaspace Krypton"
+ # The following are optional settings for more balanced font weight
+ font-style = "Medium"
+ font-style-bold = "Italic"
+ font-style-italic= "Italic"
+ font-style-bold-italic = "Regular"
 background-opacity = 0.6
 background-blur-radius = 10
 background = black
-font-size = 18
+font-size = 22
+font-feature = ss-04
+font-feature = ss-06
+font-feature = ss-07
+font-feature = ss-08
+font-feature = ss-10
+font-feature = liga
+
+# agentmux: enable desktop notifications from tmux passthrough
+desktop-notifications = true
+# Send Option key as Alt so herdr/tmux alt bindings (e.g. prefix+alt+g) work
+macos-option-as-alt = true

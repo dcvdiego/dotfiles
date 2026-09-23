@@ -1,3 +1,5 @@
 README.md
 docs/
 **/.DS_Store
+# Secrets - never manage/commit
+.config/zsh/secrets.zsh
