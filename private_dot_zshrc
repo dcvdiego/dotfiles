@@ -15,6 +15,18 @@ export XDG_CONFIG_HOME="$HOME/.config"
 # Keep PATH entries unique while preserving the first occurrence.
 typeset -U path PATH
 
+# ── Homebrew (portable: Apple Silicon / Intel / Linux+WSL) ──
+# Resolves HOMEBREW_PREFIX once; all formula paths below derive from it.
+if command -v brew >/dev/null 2>&1; then
+  eval "$(brew shellenv)"
+elif [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -121,7 +133,8 @@ ZSH_DISABLE_COMPFIX=true
 
 ZVM_INIT_MODE=sourcing
 
-source /opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+[[ -f "$HOMEBREW_PREFIX/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh" ]] && \
+  source "$HOMEBREW_PREFIX/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
 # atuin must init inside the zvm hook or zsh-vi-mode swallows its keybinds
 zvm_after_init_commands+=('eval "$(atuin init zsh)"')
 source $ZSH/oh-my-zsh.sh
@@ -172,8 +185,8 @@ path=(
   $path
 )
 
-if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
-  path=(/opt/homebrew/opt/ruby/bin $path)
+if [ -d "$HOMEBREW_PREFIX/opt/ruby/bin" ]; then
+  path=("$HOMEBREW_PREFIX/opt/ruby/bin" $path)
   if command -v gem >/dev/null 2>&1; then
     path=("$(gem environment gemdir)/bin" $path)
   fi
@@ -258,11 +271,13 @@ eval "$(zoxide init zsh)"
 
 alias cd="z"
 
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+[[ -f "$HOMEBREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme" ]] && \
+  source "$HOMEBREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+[[ -f "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
+  source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 
 # history setup
@@ -278,12 +293,13 @@ PATH=~/.console-ninja/.bin:$PATH
 
 export EDITOR=nvim
 
-source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -f "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
+  source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 export FONOA_GITHUB_LOGIN=dcvdiego
 # Secrets live in ~/.config/zsh/secrets.zsh (unmanaged, excluded via .chezmoiignore)
 [ -f "$HOME/.config/zsh/secrets.zsh" ] && source "$HOME/.config/zsh/secrets.zsh"
 export GOPRIVATE=github.com/Fonoa-Tech/*
-source /opt/homebrew/opt/asdf/libexec/asdf.sh
+[[ -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh" ]] && source "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="$(go env GOBIN):$PATH"
@@ -385,7 +401,7 @@ function komorebic() {
       local status=$?
       if (( status == 0 )); then
         pkill -x skhd 2>/dev/null
-        /opt/homebrew/bin/skhd -c "$HOME/.config/komorebi/skhdrc" \
+        "${HOMEBREW_PREFIX:-/opt/homebrew}/bin/skhd" -c "$HOME/.config/komorebi/skhdrc" \
           >/tmp/skhd.out.log 2>/tmp/skhd.err.log &!
       fi
       return $status
