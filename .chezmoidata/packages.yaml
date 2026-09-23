@@ -71,6 +71,8 @@ packages:
   - pnpm
   - uv
   - air
+  # cross-manager inventory/audit: `mpm outdated`, `mpm orphans`, `mpm installed`
+  - meta-package-manager
   # gemini-cli installed with link: false (name conflict) - see install script
 
 # npm globals (installed via brew bundle's npm DSL; node provided by mise)
