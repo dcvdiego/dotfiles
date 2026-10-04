@@ -1,8 +1,8 @@
 #!/bin/sh
-# herdr-codexbar from its pinned checkout, on brew's Python: it needs 3.11+
-# (tomllib) and Ubuntu 22.04's /usr/bin/python3 is 3.10. Agents call this path
-# from their hooks, so it must not depend on their PATH.
+# herdr-codexbar from its pinned checkout, on mise's Python 3.13 (it needs 3.11+
+# for tomllib). Agents call this path from their hooks, so it must not depend on
+# their PATH; mise keeps installs/python/3.13 pointing at the current 3.13.x.
 root="$HOME/.local/share/herdr-codexbar"
 export HERDR_CODEXBAR_BIN="$HOME/.local/bin/herdr-codexbar"
 export PYTHONPATH="$root${PYTHONPATH:+:$PYTHONPATH}"
-exec /home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m herdr_codexbar "$@"
+exec "$HOME/.local/share/mise/installs/python/3.13/bin/python3" -m herdr_codexbar "$@"

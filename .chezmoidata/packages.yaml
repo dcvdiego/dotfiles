@@ -104,4 +104,3 @@ agent_packages:
   - btop
   - uv
   - bun
-  - python@3.14   # herdr-codexbar needs 3.11+; Ubuntu 22.04 has 3.10
