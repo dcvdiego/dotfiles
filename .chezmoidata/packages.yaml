@@ -79,6 +79,7 @@ packages:
 # herdr, driven from the phone via Collie, with CodexBar tracking quotas.
 # Only what private_dot_zshrc needs to start cleanly, plus the agent tooling.
 # CodexBar is a chezmoi external (static musl build; the brew one needs glibc 2.38).
+# opencode v2, omp, pi, codex, gemini-cli come from mise (dot_config/mise/config.toml).
 agent_packages:
   - powerlevel10k
   - zsh-autosuggestions

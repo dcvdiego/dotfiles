@@ -5,4 +5,8 @@ node = "lts"
 "npm:@google/gemini-cli" = "latest"
 {{- if eq (includeTemplate "role" .) "agents" }}
 "npm:@openai/codex" = "latest"
+# opencode v2 (anomalyco); brew's anomalyco/tap/opencode is still v1
+"npm:@opencode/cli" = "latest"
+# omp (oh-my-pi): prebuilt release binaries, no bun needed
+"github:can1357/oh-my-pi" = "latest"
 {{- end }}

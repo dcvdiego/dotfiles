@@ -44,11 +44,9 @@ fi
 # Cross-platform set from .chezmoidata/packages.yaml (embedded => re-runs on change)
 brew bundle --file=/dev/stdin <<'BREWEOF'
 {{ if $agents -}}
-tap "anomalyco/tap"
 {{ range .agent_packages -}}
 brew "{{ . }}"
 {{ end -}}
-brew "anomalyco/tap/opencode", trusted: true
 {{ else -}}
 tap "anomalyco/tap"
 tap "datadog-labs/pack"
