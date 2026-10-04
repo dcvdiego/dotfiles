@@ -7,7 +7,7 @@
 #   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
 #   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
 #   herdr {{ include "dot_config/systemd/user/herdr-server.service" | sha256sum }}
-#   hcb   {{ include "dot_config/systemd/user/herdr-codexbar.service" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.timer" | sha256sum }}
+#   hcb   {{ include "dot_local/bin/executable_herdr-codexbar" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.service" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.timer" | sha256sum }}
 #   mise  {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
 set -eu
 export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
@@ -77,8 +77,18 @@ systemctl --user daemon-reload
 systemctl --user enable --now herdr-server.service codexbar-serve.service codexbar-watch.service
 
 # herdr's own agent-state integrations, then herdr-codexbar's hooks (both idempotent)
-for i in claude codex antigravity-cli opencode pi omp; do herdr integration install "$i" >/dev/null; done
-"$hcb/bin/herdr-codexbar" setup >/dev/null
+for i in claude antigravity-cli opencode pi omp; do herdr integration install "$i" >/dev/null; done
+"$HOME/.local/bin/herdr-codexbar" setup >/dev/null
+# opencode v2 ignores "./name" entries in cli.json (they don't resolve against
+# the config dir), so declare local plugins by absolute path instead.
+oc_cli="$HOME/.config/opencode/cli.json"
+if [ -f "$oc_cli" ]; then
+    jq --arg dir "$HOME/.config/opencode" '
+      .plugins |= ((. // []) | map(if type == "string" and startswith("./")
+                                   then {package: ($dir + "/" + ltrimstr("./"))} else . end)
+                   | reduce .[] as $p ([]; if index([$p]) then . else . + [$p] end))' \
+      "$oc_cli" >"$oc_cli.tmp" && mv "$oc_cli.tmp" "$oc_cli"
+fi
 systemctl --user enable --now herdr-codexbar.timer
 systemctl --user restart codexbar-serve.service codexbar-watch.service
 {{ end -}}

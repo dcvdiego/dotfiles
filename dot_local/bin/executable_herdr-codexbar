@@ -1,0 +1,8 @@
+#!/bin/sh
+# herdr-codexbar from its pinned checkout, on brew's Python: it needs 3.11+
+# (tomllib) and Ubuntu 22.04's /usr/bin/python3 is 3.10. Agents call this path
+# from their hooks, so it must not depend on their PATH.
+root="$HOME/.local/share/herdr-codexbar"
+export HERDR_CODEXBAR_BIN="$HOME/.local/bin/herdr-codexbar"
+export PYTHONPATH="$root${PYTHONPATH:+:$PYTHONPATH}"
+exec /home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m herdr_codexbar "$@"

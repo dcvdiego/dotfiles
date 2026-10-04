@@ -15,6 +15,7 @@ docs/
 .local/bin/quota-notify
 .local/bin/codexbar
 .local/bin/xdg-open
+.local/bin/herdr-codexbar
 .zshenv
 {{ else -}}
 # headless agents box: no desktop/macOS configs

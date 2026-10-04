@@ -6,4 +6,4 @@ After=herdr-server.service
 Type=oneshot
 Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin
 EnvironmentFile=-%h/.config/codexbar/env
-ExecStart=%h/.local/share/herdr-codexbar/bin/herdr-codexbar refresh
+ExecStart=%h/.local/bin/herdr-codexbar refresh
