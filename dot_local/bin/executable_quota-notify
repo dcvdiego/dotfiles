@@ -1,5 +1,5 @@
 #!/bin/sh
-# CodexBar hook -> Collie phone push. Run by `codexbar hooks watch` (rules live
+# CodexBar hook -> Collie phone push (`collie push test`). Run by `codexbar hooks watch` (rules live
 # in ~/.config/codexbar/config.json); the event arrives as CODEXBAR_* env vars.
 set -eu
 : "${HOME:=$(getent passwd "$(id -un)" | cut -d: -f6)}"
@@ -23,4 +23,4 @@ case "${CODEXBAR_EVENT:-}" in
   *)              title="CodexBar ${CODEXBAR_EVENT:-event}"; body="$provider" ;;
 esac
 
-exec "$collie" push-test "$title" "$body"
+exec "$collie" push test "$title" "$body"
