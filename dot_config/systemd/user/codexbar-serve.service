@@ -1,0 +1,14 @@
+[Unit]
+Description=CodexBar usage dashboard + JSON API (127.0.0.1:8080)
+After=network-online.target
+
+[Service]
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin
+# Optional extra provider env (e.g. OPENCODE_API_KEY); not managed by chezmoi
+EnvironmentFile=-%h/.config/codexbar/env
+ExecStart=/home/linuxbrew/.linuxbrew/bin/codexbar serve --port 8080
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

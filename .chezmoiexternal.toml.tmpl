@@ -1,0 +1,15 @@
+{{ if eq (includeTemplate "role" .) "agents" -}}
+# role=agents only: workstations already have these installed by hand.
+[".oh-my-zsh"]
+    type = "archive"
+    url = "https://github.com/ohmyzsh/ohmyzsh/archive/master.tar.gz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".oh-my-zsh/custom/plugins/zsh-autocomplete"]
+    type = "archive"
+    url = "https://github.com/marlonrichert/zsh-autocomplete/archive/main.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+{{ end -}}

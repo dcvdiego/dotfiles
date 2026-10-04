@@ -13,14 +13,19 @@ brew bundle --file=/dev/stdin <<'BREWEOF'
 {{ include "Brewfile" | trim -}}
 BREWEOF
 {{ else if eq .chezmoi.os "linux" -}}
+{{ $agents := eq (includeTemplate "role" .) "agents" -}}
 #!/bin/sh
 set -eu
 
+{{ if $agents -}}
+# role=agents: apt prerequisites are provisioned by root (see homelab docs/agents.md)
+{{ else -}}
 # apt prerequisites (sudo required)
 if command -v apt-get >/dev/null 2>&1; then
     sudo apt-get update -y
     sudo apt-get install -y zsh git curl file build-essential procps
 fi
+{{- end }}
 
 # Homebrew-on-Linux: identical names/versions as macOS
 if ! command -v brew >/dev/null 2>&1; then
@@ -38,6 +43,15 @@ fi
 
 # Cross-platform set from .chezmoidata/packages.yaml (embedded => re-runs on change)
 brew bundle --file=/dev/stdin <<'BREWEOF'
+{{ if $agents -}}
+tap "anomalyco/tap"
+tap "steipete/tap"
+{{ range .agent_packages -}}
+brew "{{ . }}"
+{{ end -}}
+brew "anomalyco/tap/opencode", trusted: true
+brew "steipete/tap/codexbar", trusted: true
+{{ else -}}
 tap "anomalyco/tap"
 tap "datadog-labs/pack"
 tap "golangci/tap"
@@ -47,6 +61,7 @@ brew "{{ . }}"
 brew "golangci/tap/golangci-lint"
 brew "anomalyco/tap/opencode", trusted: true
 brew "datadog-labs/pack/pup", trusted: true
+{{ end -}}
 BREWEOF
 
 echo "Done. To make zsh the default shell: chsh -s \$(which zsh)"

@@ -74,3 +74,31 @@ packages:
   # cross-manager inventory/audit: `mpm outdated`, `mpm orphans`, `mpm installed`
   - meta-package-manager
   # gemini-cli + pi-coding-agent are npm globals managed by MISE (npm: backend), not brew
+
+# Slim set for role=agents: the headless homelab box that runs coding agents in
+# herdr, driven from the phone via Collie, with CodexBar tracking quotas.
+# Only what private_dot_zshrc needs to start cleanly, plus the agent tooling.
+agent_packages:
+  - powerlevel10k
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+  - zsh-vi-mode
+  - zoxide
+  - thefuck
+  - fzf
+  - eza
+  - fd
+  - ripgrep
+  - bat
+  - jq
+  - git
+  - gh
+  - git-delta
+  - lazygit
+  - mise
+  - atuin
+  - navi
+  - neovim
+  - btop
+  - uv
+  - bun

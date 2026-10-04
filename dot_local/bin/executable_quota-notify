@@ -1,0 +1,26 @@
+#!/bin/sh
+# CodexBar hook -> Collie phone push. Run by `codexbar hooks watch` (rules live
+# in ~/.config/codexbar/config.json); the event arrives as CODEXBAR_* env vars.
+set -eu
+: "${HOME:=$(getent passwd "$(id -un)" | cut -d: -f6)}"
+export HOME
+
+collie="$HOME/.local/share/collie/current/bin/collie"
+[ -x "$collie" ] || collie="$(command -v collie)"
+
+provider="${CODEXBAR_PROVIDER:-?}"
+window="${CODEXBAR_WINDOW:-session}"
+pct=""
+[ -n "${CODEXBAR_USAGE_PERCENT:-}" ] && pct="$(awk "BEGIN { printf \"%d%%\", ${CODEXBAR_USAGE_PERCENT} * 100 }")"
+reset=""
+[ -n "${CODEXBAR_RESET_AT:-}" ] && reset=" · resets $(date -d "$CODEXBAR_RESET_AT" '+%a %H:%M' 2>/dev/null || echo "$CODEXBAR_RESET_AT")"
+
+case "${CODEXBAR_EVENT:-}" in
+  quota_low)      title="$provider $window at $pct";   body="Running low$reset" ;;
+  quota_reached)  title="$provider $window limit hit"; body="Switch tools$reset" ;;
+  quota_reset)    title="$provider $window reset";     body="Quota refreshed, go use it" ;;
+  refresh_failed) title="$provider usage check failed"; body="${CODEXBAR_STATUS:-error}: may need to log in again" ;;
+  *)              title="CodexBar ${CODEXBAR_EVENT:-event}"; body="$provider" ;;
+esac
+
+exec "$collie" push-test "$title" "$body"

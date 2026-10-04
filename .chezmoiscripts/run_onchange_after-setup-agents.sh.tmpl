@@ -1,0 +1,48 @@
+{{ if eq (includeTemplate "role" .) "agents" -}}
+#!/bin/sh
+# role=agents: agent CLIs, herdr, Collie and CodexBar quota alerts.
+# Runs after install-packages (alphabetical). Re-runs when this file or the
+# units/hook script change:
+#   serve {{ include "dot_config/systemd/user/codexbar-serve.service" | sha256sum }}
+#   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
+#   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
+set -eu
+export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
+
+command -v claude >/dev/null 2>&1 || curl -fsSL https://claude.ai/install.sh | bash
+command -v herdr  >/dev/null 2>&1 || curl -fsSL https://herdr.dev/install.sh | sh
+[ -x "$HOME/.local/share/collie/current/bin/collie" ] || curl -fsSL https://colliepwa.dev/install.sh | sh
+
+# codex + gemini-cli come from dot_config/mise/config.toml
+command -v mise >/dev/null 2>&1 && mise install --yes
+
+# CodexBar: enable the subscriptions we track and point quota events at
+# quota-notify. Merged into the existing config so API keys added with
+# `codexbar config set-api-key` survive.
+cfg="$HOME/.config/codexbar/config.json"
+mkdir -p "$(dirname "$cfg")"
+[ -s "$cfg" ] || echo '{"version":1,"providers":[]}' >"$cfg"
+chmod 600 "$cfg"
+tmp="$(mktemp)"
+jq --arg exe "$HOME/.local/bin/quota-notify" '
+  ["claude","codex","gemini","zai","opencodego"] as $ids
+  | .providers = ((.providers // []) as $p
+      | ($p | map(if (.id | IN($ids[])) then .enabled = true else . end))
+        + [$ids[] | select(. as $id | $p | map(.id) | index($id) | not) | {id: ., enabled: true}])
+  | .hooks = {
+      enabled: true,
+      events: [
+        $ids[] as $id
+        | ({event: "quota_low", threshold: 0.8}, {event: "quota_reached"},
+           {event: "quota_reset"}, {event: "refresh_failed"})
+        | . + {id: "\($id)-\(.event)", enabled: true, provider: $id,
+               executable: $exe, arguments: [], timeoutSeconds: 20}
+      ]
+    }' "$cfg" >"$tmp" && mv "$tmp" "$cfg"
+chmod 600 "$cfg"
+codexbar config validate
+
+systemctl --user daemon-reload
+systemctl --user enable --now codexbar-serve.service codexbar-watch.service
+systemctl --user restart codexbar-serve.service codexbar-watch.service
+{{ end -}}
