@@ -5,8 +5,13 @@ node = "lts"
 "npm:@google/gemini-cli" = "latest"
 {{- if eq (includeTemplate "role" .) "agents" }}
 "npm:@openai/codex" = "latest"
-# opencode v2 (anomalyco); brew's anomalyco/tap/opencode is still v1
-"npm:@opencode/cli" = "latest"
+# opencode v2 (anomalyco); brew's anomalyco/tap/opencode is still v1.
+# Its postinstall links the native binary, so opt this one package into scripts.
+"npm:@opencode/cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
 # omp (oh-my-pi): prebuilt release binaries, no bun needed
 "github:can1357/oh-my-pi" = "latest"
+
+[settings]
+# plain npm so the per-tool npm_args above apply (aube ignores them)
+npm.package_manager = "npm"
 {{- end }}

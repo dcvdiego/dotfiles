@@ -7,6 +7,7 @@
 #   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
 #   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
 #   herdr {{ include "dot_config/systemd/user/herdr-server.service" | sha256sum }}
+#   mise  {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
 set -eu
 export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
 
