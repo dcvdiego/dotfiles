@@ -1,0 +1,12 @@
+#!/bin/sh
+# Push "up" to Uptime Kuma only if the tailnet's DNS resolver answers over Tailscale.
+# Kuma runs on docker-prod and can't notice docker-prod leaving the tailnet (expired
+# key) or Technitium dying, so a tailnet node does the checking. No push = alert.
+# Token: KUMA_PUSH_TAILNET_DNS in ~/.config/homelab/kuma-push.env (not in chezmoi).
+set -eu
+resolver="${TAILNET_DNS:-100.97.221.5}"
+answer="$(dig +time=3 +tries=2 +short "@$resolver" example.com A | head -1)"
+[ -n "$answer" ] || { echo "no answer from $resolver" >&2; exit 1; }
+# -4: the split-DNS record for status.diegochuman.com is A-only (AAAA goes to Cloudflare Access).
+exec curl -4 -fsS -o /dev/null --max-time 10 \
+    "https://status.diegochuman.com/api/push/${KUMA_PUSH_TAILNET_DNS}?status=up&msg=example.com%3D${answer}&ping="

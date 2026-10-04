@@ -8,6 +8,7 @@
 #   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
 #   herdr {{ include "dot_config/systemd/user/herdr-server.service" | sha256sum }}
 #   hcb   {{ include "dot_local/bin/executable_herdr-codexbar" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.service" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.timer" | sha256sum }}
+#   dns   {{ include "dot_config/systemd/user/tailnet-dns-check.timer" | sha256sum }} {{ include "dot_local/bin/executable_tailnet-dns-check" | sha256sum }}
 #   mise  {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
 set -eu
 export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
@@ -104,5 +105,7 @@ if [ -f "$oc_cli" ]; then
       "$oc_cli" >"$oc_cli.tmp" && mv "$oc_cli.tmp" "$oc_cli"
 fi
 systemctl --user enable --now herdr-codexbar.timer
+# Uptime Kuma push monitor for the tailnet resolver; needs the token file (homelab docs/networking.md)
+[ -f "$HOME/.config/homelab/kuma-push.env" ] && systemctl --user enable --now tailnet-dns-check.timer
 systemctl --user restart codexbar-serve.service codexbar-watch.service
 {{ end -}}
