@@ -343,6 +343,7 @@ token() {
 # runs in the background to write a note to the Obsidian vault.
 
 _dev_notes_fire() {
+  [[ -x ~/.config/dev-notes/generate-note.sh ]] || return 0
   local tool="$1"
   local _branch _repo _remote
   _branch=$(git branch --show-current 2>/dev/null || true)

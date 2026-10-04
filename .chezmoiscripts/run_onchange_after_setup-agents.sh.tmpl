@@ -14,8 +14,15 @@ export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
 command -v claude >/dev/null 2>&1 || curl -fsSL https://claude.ai/install.sh | bash
 command -v herdr  >/dev/null 2>&1 || curl -fsSL https://herdr.dev/install.sh | sh
 [ -x "$HOME/.local/share/collie/current/bin/collie" ] || curl -fsSL https://colliepwa.dev/install.sh | sh
+# Antigravity CLI (agy) replaces Gemini CLI for personal Google AI plans since
+# 2026-06-18. Its installer appends PATH to ~/.zshrc, which chezmoi owns here.
+if ! command -v agy >/dev/null 2>&1; then
+    cp "$HOME/.zshrc" "$HOME/.zshrc.pre-agy"
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+    mv "$HOME/.zshrc.pre-agy" "$HOME/.zshrc"
+fi
 
-# codex + gemini-cli come from dot_config/mise/config.toml
+# codex, opencode v2, omp, pi come from dot_config/mise/config.toml
 command -v mise >/dev/null 2>&1 && mise install --yes
 
 # CodexBar: enable the subscriptions we track and point quota events at
@@ -27,9 +34,10 @@ mkdir -p "$(dirname "$cfg")"
 chmod 600 "$cfg"
 tmp="$(mktemp)"
 jq --arg exe "$HOME/.local/bin/quota-notify" '
-  ["claude","codex","gemini","zai","opencodego"] as $ids
+  ["claude","codex","antigravity","zai","opencodego"] as $ids
   | .providers = ((.providers // []) as $p
-      | ($p | map(if (.id | IN($ids[])) then .enabled = true else . end))
+      | ($p | map(if (.id | IN($ids[])) then .enabled = true
+                  elif .id == "gemini" then .enabled = false else . end))
         + [$ids[] | select(. as $id | $p | map(.id) | index($id) | not) | {id: ., enabled: true}])
   | .hooks = {
       enabled: true,

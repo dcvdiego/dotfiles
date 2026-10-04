@@ -12,6 +12,7 @@ docs/
 .config/systemd/user/herdr-server.service
 .local/bin/quota-notify
 .local/bin/codexbar
+.local/bin/xdg-open
 {{ else -}}
 # headless agents box: no desktop/macOS configs
 .aerospace.toml

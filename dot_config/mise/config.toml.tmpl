@@ -2,8 +2,10 @@
 go = "1.25.3"
 node = "lts"
 "npm:@earendil-works/pi-coding-agent" = "latest"
+{{- if ne (includeTemplate "role" .) "agents" }}
 "npm:@google/gemini-cli" = "latest"
-{{- if eq (includeTemplate "role" .) "agents" }}
+{{- else }}
+# Gemini CLI no longer serves personal Google AI plans; agy is installed by the setup script
 "npm:@openai/codex" = "latest"
 # opencode v2 (anomalyco); brew's anomalyco/tap/opencode is still v1.
 # Its postinstall links the native binary, so opt this one package into scripts.
