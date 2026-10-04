@@ -6,6 +6,7 @@
 #   serve {{ include "dot_config/systemd/user/codexbar-serve.service" | sha256sum }}
 #   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
 #   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
+#   herdr {{ include "dot_config/systemd/user/herdr-server.service" | sha256sum }}
 set -eu
 export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
 
@@ -42,7 +43,20 @@ jq --arg exe "$HOME/.local/bin/quota-notify" '
 chmod 600 "$cfg"
 codexbar config validate
 
+# Collie: seed .env once; Collie writes push keys etc. into it afterwards.
+# The trusted user is this machine's tailnet login (what `tailscale serve` injects).
+collie_env="$HOME/.config/collie/.env"
+tailnet_user="$(tailscale status --json 2>/dev/null | jq -r '.User[(.Self.UserID | tostring)].LoginName // empty' || true)"
+if [ ! -f "$collie_env" ] && [ -n "$tailnet_user" ]; then
+    mkdir -p "$(dirname "$collie_env")"
+    cp "$HOME/.local/share/collie/current/.env.example" "$collie_env"
+    printf '\nCOLLIE_MUX=herdr\nCOLLIE_TRUSTED_USER=%s\n' "$tailnet_user" >>"$collie_env"
+    chmod 600 "$collie_env"
+elif [ ! -f "$collie_env" ]; then
+    echo "tailscale not logged in: skipped Collie .env; run 'tailscale up' then 'chezmoi apply'"
+fi
+
 systemctl --user daemon-reload
-systemctl --user enable --now codexbar-serve.service codexbar-watch.service
+systemctl --user enable --now herdr-server.service codexbar-serve.service codexbar-watch.service
 systemctl --user restart codexbar-serve.service codexbar-watch.service
 {{ end -}}

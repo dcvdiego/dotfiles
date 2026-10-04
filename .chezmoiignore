@@ -9,6 +9,7 @@ docs/
 # agents-only
 .config/systemd/user/codexbar-serve.service
 .config/systemd/user/codexbar-watch.service
+.config/systemd/user/herdr-server.service
 .local/bin/quota-notify
 .local/bin/codexbar
 {{ else -}}
