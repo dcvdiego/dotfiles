@@ -10,6 +10,8 @@ docs/
 .config/systemd/user/codexbar-serve.service
 .config/systemd/user/codexbar-watch.service
 .config/systemd/user/herdr-server.service
+.config/systemd/user/herdr-codexbar.service
+.config/systemd/user/herdr-codexbar.timer
 .local/bin/quota-notify
 .local/bin/codexbar
 .local/bin/xdg-open

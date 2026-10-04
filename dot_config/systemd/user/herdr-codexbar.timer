@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh herdr-codexbar every 3 minutes (what its brew service does on macOS)
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=180s
+
+[Install]
+WantedBy=timers.target
