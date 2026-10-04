@@ -349,8 +349,8 @@ _dev_notes_fire() {
   _repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || true)
   _remote=$(git remote get-url origin 2>/dev/null || true)
   (GIT_BRANCH="$_branch" GIT_REPO="$_repo" GIT_REMOTE="$_remote" TOOL="$tool" \
-    ~/.config/dev-notes/generate-note.sh </dev/null >/dev/null 2>&1) &
-  disown $!
+  # nohup: the note must survive the pane closing (SIGHUP on PTY close).
+    nohup ~/.config/dev-notes/generate-note.sh </dev/null >>~/.config/dev-notes/dev-notes.log 2>&1 &)
 }
 
 function opencode() {
@@ -372,14 +372,14 @@ function copilot() {
   _start_epoch=$(date +%s)
   command copilot "$@"
   local _exit=$?
-  # Pass the start epoch so the script finds the right session-state folder
+  # Pass the start epoch so the script finds the right session-state folder.
+  # nohup: the note must survive the pane/agent closing (SIGHUP on PTY close).
   GIT_BRANCH="$(git branch --show-current 2>/dev/null || true)" \
   GIT_REPO="$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || true)" \
   GIT_REMOTE="$(git remote get-url origin 2>/dev/null || true)" \
   TOOL=copilot \
   SESSION_START_EPOCH="$_start_epoch" \
-  ~/.config/dev-notes/generate-note.sh </dev/null >/dev/null 2>&1 &
-  disown $!
+  nohup ~/.config/dev-notes/generate-note.sh </dev/null >>~/.config/dev-notes/dev-notes.log 2>&1 &!
   return $_exit
 }
 
@@ -446,3 +446,6 @@ function ya() {
 
 # hj: any herdr command, piped into jnv for interactive JSON exploration
 hj() { herdr "$@" | jnv; }
+
+# navi widget (shell integration)
+eval "$(navi widget zsh)"
