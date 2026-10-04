@@ -1,0 +1,10 @@
+# Written by https://github.com/dcvdiego/carry; edit carry.toml there instead.
+carry:
+  herdr-codexbar:
+    source: "fork"
+    repo: "dcvdiego/herdr-codexbar"
+    rev: "bca66576f45243d58ea30f8a7ff8936481bd8e03"
+  herdr-hunk-diff:
+    source: "fork"
+    repo: "dcvdiego/herdr-hunk-diff"
+    rev: "ead3f3b10e3744496acb8dd76b320504aeff9131"

@@ -66,12 +66,26 @@ elif [ ! -f "$collie_env" ]; then
     echo "tailscale not logged in: skipped Collie .env; run 'tailscale up' then 'chezmoi apply'"
 fi
 
-# herdr-codexbar: CodexBar quota under each agent in herdr's sidebar. Pinned to
-# a reviewed commit since its hooks run inside every agent; bump deliberately.
-hcb_rev=2cb061f
+# Forked tools come from .chezmoidata/carry.yaml, written by dcvdiego/carry as a
+# PR: the fork's carry/main while upstream work is carried, upstream once it's
+# all released. Pinned revs, since these run inside every agent.
+{{- $hcb := index .carry "herdr-codexbar" }}
+{{- $hunk := index .carry "herdr-hunk-diff" }}
+
+# herdr-codexbar: CodexBar quota under each agent in herdr's sidebar.
 hcb="$HOME/.local/share/herdr-codexbar"
-[ -d "$hcb/.git" ] || git clone -q https://github.com/Argon-Sky/herdr-codexbar "$hcb"
-git -C "$hcb" fetch -q origin && git -C "$hcb" checkout -q "$hcb_rev"
+[ -d "$hcb/.git" ] || git clone -q "https://github.com/{{ $hcb.repo }}" "$hcb"
+git -C "$hcb" remote set-url origin "https://github.com/{{ $hcb.repo }}"
+git -C "$hcb" fetch -q origin {{ $hcb.rev }} && git -C "$hcb" checkout -q {{ $hcb.rev }}
+
+# herdr-hunk-diff: review agent diffs in hunk, send comments back to the agent.
+hunk_pin="{{ $hunk.repo }}@{{ $hunk.rev }}"
+hunk_state="$HOME/.local/state/carry/herdr-hunk-diff"
+if [ "$(cat "$hunk_state" 2>/dev/null)" != "$hunk_pin" ]; then
+    herdr plugin uninstall jhochenbaum.hunkdiff --yes >/dev/null 2>&1 || true
+    herdr plugin install {{ $hunk.repo }} --ref {{ $hunk.rev }} --yes
+    mkdir -p "$(dirname "$hunk_state")" && echo "$hunk_pin" >"$hunk_state"
+fi
 
 systemctl --user daemon-reload
 systemctl --user enable --now herdr-server.service codexbar-serve.service codexbar-watch.service
