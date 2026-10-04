@@ -78,6 +78,7 @@ packages:
 # Slim set for role=agents: the headless homelab box that runs coding agents in
 # herdr, driven from the phone via Collie, with CodexBar tracking quotas.
 # Only what private_dot_zshrc needs to start cleanly, plus the agent tooling.
+# CodexBar is a chezmoi external (static musl build; the brew one needs glibc 2.38).
 agent_packages:
   - powerlevel10k
   - zsh-autosuggestions

@@ -10,6 +10,7 @@ docs/
 .config/systemd/user/codexbar-serve.service
 .config/systemd/user/codexbar-watch.service
 .local/bin/quota-notify
+.local/bin/codexbar
 {{ else -}}
 # headless agents box: no desktop/macOS configs
 .aerospace.toml

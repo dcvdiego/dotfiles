@@ -12,4 +12,12 @@
     exact = true
     stripComponents = 1
     refreshPeriod = "168h"
+
+# CodexBar CLI, static musl build: runs on any glibc (Ubuntu 22.04 included).
+# Bump version + checksum from the release's .sha256 asset to upgrade.
+[".local/share/codexbar"]
+    type = "archive"
+    url = "https://github.com/steipete/CodexBar/releases/download/v0.71.1/CodexBarCLI-v0.71.1-linux-musl-x86_64.tar.gz"
+    checksum.sha256 = "030d17d1b6b59937462067518106970778b02ab74d619e09980c03b9e4a44d9f"
+    exact = true
 {{ end -}}
