@@ -1,7 +1,7 @@
 {{ if eq (includeTemplate "role" .) "agents" -}}
 #!/bin/sh
 # role=agents: agent CLIs, herdr, Collie and CodexBar quota alerts.
-# Runs after install-packages (alphabetical). Re-runs when this file or the
+# Runs after all files are written (after_). Re-runs when this file or the
 # units/hook script change:
 #   serve {{ include "dot_config/systemd/user/codexbar-serve.service" | sha256sum }}
 #   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
