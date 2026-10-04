@@ -19,5 +19,5 @@
     type = "archive"
     url = "https://github.com/steipete/CodexBar/releases/download/v0.71.1/CodexBarCLI-v0.71.1-linux-musl-x86_64.tar.gz"
     checksum.sha256 = "030d17d1b6b59937462067518106970778b02ab74d619e09980c03b9e4a44d9f"
-    exact = true
+    # not exact: CodexBar keeps runtime state (.cookies.shared) next to its binary
 {{ end -}}
