@@ -11,6 +11,8 @@ font-family-bold = "Monaspace Xenon"
  font-style-bold = "Italic"
  font-style-italic= "Italic"
  font-style-bold-italic = "Regular"
+# herdr-agent-usage sidebar icons (private-use range) -> bundled icon font
+font-codepoint-map = U+E1A0-U+E1B6=Herdr Agent Icons Max
 background-opacity = 0.6
 background-blur-radius = 10
 background = black
