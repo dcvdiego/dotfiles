@@ -14,4 +14,4 @@ carry:
   herdr-hunk-diff:
     source: "fork"
     repo: "dcvdiego/herdr-hunk-diff"
-    rev: "793bb8cad6ad076041e8f7ec7a85cd1936b4f347"
+    rev: "af1dbfb16925dcbd7e409c5702bda3758b16deb4"
