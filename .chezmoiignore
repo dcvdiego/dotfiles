@@ -25,4 +25,5 @@ docs/
 Brewfile
 .config/sketchybar
 .config/ghostty
+Library
 {{ end -}}

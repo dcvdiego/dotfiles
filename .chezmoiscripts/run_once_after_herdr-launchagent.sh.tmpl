@@ -1,0 +1,16 @@
+{{ if and (lookPath "herdr") (eq .chezmoi.os "darwin") -}}
+#!/bin/sh
+set -eu
+
+# Load the herdr-server LaunchAgent (gives the headless server a PATH that
+# includes mise shims + homebrew, mirroring the agents box's systemd unit).
+PLIST="$HOME/Library/LaunchAgents/dev.herdr.server.plist"
+LABEL="dev.herdr.server"
+
+if launchctl list "$LABEL" >/dev/null 2>&1; then
+    echo "herdr LaunchAgent already loaded"
+else
+    launchctl bootstrap "gui/$(id -u)" "$PLIST"
+    echo "herdr LaunchAgent loaded"
+fi
+{{ end -}}

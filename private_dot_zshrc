@@ -168,6 +168,7 @@ bindkey '^[[B' history-search-forward
 alias brewup="brew update; brew upgrade; brew cleanup; brew doctor"
 alias openzsh="vscr ~/.zshrc"
 alias rezsh="source ~/.zshrc"
+alias agent='AGENT_CLI_CREDENTIAL_STORE=file agent'
 # alias cat="bat"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
