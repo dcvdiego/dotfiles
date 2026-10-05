@@ -1,0 +1,90 @@
+{{ if eq (includeTemplate "role" .) "agents" -}}
+#!/bin/sh
+# role=agents: agent CLIs, herdr, Collie and CodexBar quota alerts.
+# Runs after all files are written (after_). Re-runs when this file or the
+# units/hook script change:
+#   serve {{ include "dot_config/systemd/user/codexbar-serve.service" | sha256sum }}
+#   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
+#   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
+#   herdr {{ include "dot_config/systemd/user/herdr-server.service" | sha256sum }}
+#   dns   {{ include "dot_config/systemd/user/tailnet-dns-check.timer" | sha256sum }} {{ include "dot_local/bin/executable_tailnet-dns-check" | sha256sum }}
+#   mise  {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
+set -eu
+export PATH="$HOME/.local/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
+
+command -v claude >/dev/null 2>&1 || curl -fsSL https://claude.ai/install.sh | bash
+command -v herdr  >/dev/null 2>&1 || curl -fsSL https://herdr.dev/install.sh | sh
+[ -x "$HOME/.local/share/collie/current/bin/collie" ] || curl -fsSL https://colliepwa.dev/install.sh | sh
+# Antigravity CLI (agy) replaces Gemini CLI for personal Google AI plans since
+# 2026-06-18. Its installer appends PATH to ~/.zshrc, which chezmoi owns here.
+if ! command -v agy >/dev/null 2>&1; then
+    cp "$HOME/.zshrc" "$HOME/.zshrc.pre-agy"
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+    mv "$HOME/.zshrc.pre-agy" "$HOME/.zshrc"
+fi
+
+# codex, opencode v2, omp, pi come from dot_config/mise/config.toml
+command -v mise >/dev/null 2>&1 && mise install --yes
+
+# CodexBar: enable the subscriptions we track and point quota events at
+# quota-notify. Merged into the existing config so API keys added with
+# `codexbar config set-api-key` survive.
+cfg="$HOME/.config/codexbar/config.json"
+mkdir -p "$(dirname "$cfg")"
+[ -s "$cfg" ] || echo '{"version":1,"providers":[]}' >"$cfg"
+chmod 600 "$cfg"
+tmp="$(mktemp)"
+jq --arg exe "$HOME/.local/bin/quota-notify" '
+  ["claude","codex","antigravity","zai","opencodego"] as $ids
+  | .providers = ((.providers // []) as $p
+      | ($p | map(if (.id | IN($ids[])) then .enabled = true
+                  elif .id == "gemini" then .enabled = false else . end))
+        + [$ids[] | select(. as $id | $p | map(.id) | index($id) | not) | {id: ., enabled: true}])
+  | .hooks = {
+      enabled: true,
+      events: [
+        $ids[] as $id
+        | ({event: "quota_low", threshold: 0.8}, {event: "quota_reached"},
+           {event: "quota_reset"}, {event: "refresh_failed"})
+        | . + {id: "\($id)-\(.event)", enabled: true, provider: $id,
+               executable: $exe, arguments: [], timeoutSeconds: 20}
+      ]
+    }' "$cfg" >"$tmp" && mv "$tmp" "$cfg"
+chmod 600 "$cfg"
+codexbar config validate
+
+# Collie: seed .env once; Collie writes push keys etc. into it afterwards.
+# The trusted user is this machine's tailnet login (what `tailscale serve` injects).
+collie_env="$HOME/.config/collie/.env"
+tailnet_user="$(tailscale status --json 2>/dev/null | jq -r '.User[(.Self.UserID | tostring)].LoginName // empty' || true)"
+if [ ! -f "$collie_env" ] && [ -n "$tailnet_user" ]; then
+    mkdir -p "$(dirname "$collie_env")"
+    cp "$HOME/.local/share/collie/current/.env.example" "$collie_env"
+    printf '\nCOLLIE_MUX=herdr\nCOLLIE_TRUSTED_USER=%s\n' "$tailnet_user" >>"$collie_env"
+    chmod 600 "$collie_env"
+elif [ ! -f "$collie_env" ]; then
+    echo "tailscale not logged in: skipped Collie .env; run 'tailscale up' then 'chezmoi apply'"
+fi
+
+# Forked herdr plugins (hunk at its carry pin) and herdr-agent-usage are installed by
+# run_onchange_after-herdr-plugins.sh.tmpl from .chezmoidata/herdr.yaml.
+
+systemctl --user daemon-reload
+systemctl --user enable --now herdr-server.service codexbar-serve.service codexbar-watch.service
+
+# herdr's own agent-state integrations (herdr-agent-usage reads agent state through them)
+for i in claude antigravity-cli opencode pi omp; do herdr integration install "$i" >/dev/null; done
+# opencode v2 ignores "./name" entries in cli.json (they don't resolve against
+# the config dir), so declare local plugins by absolute path instead.
+oc_cli="$HOME/.config/opencode/cli.json"
+if [ -f "$oc_cli" ]; then
+    jq --arg dir "$HOME/.config/opencode" '
+      .plugins |= ((. // []) | map(if type == "string" and startswith("./")
+                                   then {package: ($dir + "/" + ltrimstr("./"))} else . end)
+                   | reduce .[] as $p ([]; if index([$p]) then . else . + [$p] end))' \
+      "$oc_cli" >"$oc_cli.tmp" && mv "$oc_cli.tmp" "$oc_cli"
+fi
+# Uptime Kuma push monitor for the tailnet resolver; needs the token file (homelab docs/networking.md)
+[ -f "$HOME/.config/homelab/kuma-push.env" ] && systemctl --user enable --now tailnet-dns-check.timer
+systemctl --user restart codexbar-serve.service codexbar-watch.service
+{{ end -}}

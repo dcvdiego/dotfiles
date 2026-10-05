@@ -1,0 +1,50 @@
+#!/bin/sh
+# CodexBar hook -> Collie phone push (`collie push test`). Run by `codexbar hooks watch` (rules live
+# in ~/.config/codexbar/config.json); the event arrives as CODEXBAR_* env vars.
+#
+# CodexBar's quota_reset misfires: idle windows have a sliding reset time and Claude's shifts a
+# little between polls, so it reports "resets" every poll (~400/day). A reset is only news for a
+# window we already warned about, so quota_low/quota_reached leave a marker per provider+window,
+# and quota_reset notifies once, only for a marked window whose usage really dropped.
+set -eu
+: "${HOME:=$(getent passwd "$(id -un)" | cut -d: -f6)}"
+export HOME
+
+collie="$HOME/.local/share/collie/current/bin/collie"
+[ -x "$collie" ] || collie="$(command -v collie)"
+
+provider="${CODEXBAR_PROVIDER:-?}"
+window="${CODEXBAR_WINDOW:-session}"
+state="$HOME/.local/state/quota-notify"
+mkdir -p "$state"
+marker="$state/$provider.$window.warned"
+
+used=""
+[ -n "${CODEXBAR_USAGE_PERCENT:-}" ] && used="$(awk "BEGIN { printf \"%d\", ${CODEXBAR_USAGE_PERCENT} * 100 }")"
+reset=""
+[ -n "${CODEXBAR_RESET_AT:-}" ] && reset=" · resets $(date -d "$CODEXBAR_RESET_AT" '+%a %H:%M' 2>/dev/null || echo "$CODEXBAR_RESET_AT")"
+
+case "${CODEXBAR_EVENT:-}" in
+  quota_low)
+    touch "$marker"
+    title="$provider $window at ${used:-?}%"; body="Running low$reset" ;;
+  quota_reached)
+    touch "$marker"
+    title="$provider $window limit hit"; body="Switch tools$reset" ;;
+  quota_reset)
+    # Only a window we warned about, and only once it is actually back down.
+    [ -f "$marker" ] || exit 0
+    [ -n "$used" ] && [ "$used" -ge 50 ] && exit 0
+    rm -f "$marker"
+    title="$provider $window reset"; body="Back to ${used:-0}% used, go use it" ;;
+  refresh_failed)
+    # CodexBar repeats this every 10 min while it lasts; say it at most every 6 hours.
+    failed="$state/$provider.failed"
+    [ -n "$(find "$failed" -mmin -360 2>/dev/null)" ] && exit 0
+    touch "$failed"
+    title="$provider usage check failed"; body="${CODEXBAR_STATUS:-error}: may need to log in again" ;;
+  *)
+    title="CodexBar ${CODEXBAR_EVENT:-event}"; body="$provider" ;;
+esac
+
+exec "$collie" push test "$title" "$body"

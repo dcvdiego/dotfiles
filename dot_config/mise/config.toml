@@ -1,5 +1,0 @@
-[tools]
-go = "1.25.3"
-node = "lts"
-"npm:@earendil-works/pi-coding-agent" = "latest"
-"npm:@google/gemini-cli" = "latest"

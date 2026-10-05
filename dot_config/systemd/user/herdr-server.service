@@ -1,0 +1,14 @@
+[Unit]
+Description=herdr headless server (agent panes persist without an attached client)
+
+[Service]
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin
+Environment=SHELL=/usr/bin/zsh
+WorkingDirectory=%h
+ExecStart=%h/.local/bin/herdr server
+ExecStop=%h/.local/bin/herdr server stop
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

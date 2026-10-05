@@ -1,0 +1,7 @@
+[Unit]
+Description=Check the tailnet DNS resolver and push to Uptime Kuma
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/homelab/kuma-push.env
+ExecStart=%h/.local/bin/tailnet-dns-check

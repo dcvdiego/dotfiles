@@ -3,3 +3,26 @@ docs/
 **/.DS_Store
 # Secrets - never manage/commit
 .config/zsh/secrets.zsh
+
+{{ $role := includeTemplate "role" . -}}
+{{ if ne $role "agents" -}}
+# agents-only
+.config/systemd/user/codexbar-serve.service
+.config/systemd/user/codexbar-watch.service
+.config/systemd/user/herdr-server.service
+.config/systemd/user/tailnet-dns-check.service
+.config/systemd/user/tailnet-dns-check.timer
+.local/bin/tailnet-dns-check
+.local/bin/quota-notify
+.local/bin/codexbar
+.local/bin/xdg-open
+.zshenv
+{{ else -}}
+# headless agents box: no desktop/macOS configs
+.aerospace.toml
+.macos
+.wezterm.lua
+Brewfile
+.config/sketchybar
+.config/ghostty
+{{ end -}}

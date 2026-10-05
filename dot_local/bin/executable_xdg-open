@@ -1,0 +1,4 @@
+#!/bin/sh
+# Headless box: no browser. CLIs that "open" a login URL (opencode, agy, ...)
+# get the URL printed instead of crashing on a missing xdg-open.
+printf '\nOpen this on any device:\n  %s\n\n' "$*" >&2

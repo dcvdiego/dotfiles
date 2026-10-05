@@ -120,7 +120,6 @@ plugins=(
     web-search
     yarn
     zoxide
-    zsh-autocomplete
     )
 
 ZSH_DISABLE_COMPFIX=true
@@ -131,6 +130,11 @@ ZVM_INIT_MODE=sourcing
   source "$HOMEBREW_PREFIX/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
 # atuin must init inside the zvm hook or zsh-vi-mode swallows its keybinds
 zvm_after_init_commands+=('eval "$(atuin init zsh)"')
+# zsh-autocomplete must load before oh-my-zsh's compinit (its README), so it is
+# sourced here rather than listed in plugins=().
+_zac="${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+[[ -f "$_zac" ]] && source "$_zac"
+unset _zac
 source $ZSH/oh-my-zsh.sh
 
 # mise: runtime version manager (go, node, fab, fit). Replaces asdf/nvm/pyenv.
@@ -269,8 +273,23 @@ alias cd="z"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-[[ -f "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
-  source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+_zsh_hl="$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+if [[ -f "$_zsh_hl" ]] && (( ${+_autocomplete__mods} )); then
+  # zsh-autocomplete creates some bound widgets (menu-search, recent-paths) in
+  # its first precmd; highlighting must wrap widgets after that, so load it in
+  # the next precmd (autocomplete's hook always runs first).
+  _zsh_hl_late() {
+    add-zsh-hook -d precmd _zsh_hl_late
+    source "$_zsh_hl"
+    unset _zsh_hl
+    unfunction _zsh_hl_late
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _zsh_hl_late
+elif [[ -f "$_zsh_hl" ]]; then
+  source "$_zsh_hl"
+  unset _zsh_hl
+fi
 
 
 # history setup
@@ -343,6 +362,7 @@ token() {
 # runs in the background to write a note to the Obsidian vault.
 
 _dev_notes_fire() {
+  [[ -x ~/.config/dev-notes/generate-note.sh ]] || return 0
   local tool="$1"
   local _branch _repo _remote
   _branch=$(git branch --show-current 2>/dev/null || true)

@@ -1,0 +1,6 @@
+{{- /* Machine role. Set `role` under [data] in chezmoi.toml to override;
+       the homelab agents LXC is detected by hostname. */ -}}
+{{- if hasKey . "role" -}}{{ .role }}
+{{- else if eq .chezmoi.hostname "agents" -}}agents
+{{- else -}}workstation
+{{- end -}}

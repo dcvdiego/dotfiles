@@ -1,0 +1,29 @@
+{{ if eq (includeTemplate "role" .) "agents" -}}
+# role=agents only: workstations already have these installed by hand.
+[".oh-my-zsh"]
+    type = "archive"
+    url = "https://github.com/ohmyzsh/ohmyzsh/archive/master.tar.gz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".oh-my-zsh/custom/plugins/zsh-autocomplete"]
+    type = "archive"
+    url = "https://github.com/marlonrichert/zsh-autocomplete/archive/main.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+# CodexBar CLI, static musl build. Pinned by dcvdiego/carry (.chezmoidata/carry.yaml):
+# a fork pre-release while fixes are carried, upstream's release once they're merged.
+{{- $cb := get .carry "codexbar" }}
+[".local/share/codexbar"]
+    type = "archive"
+{{- if $cb }}
+    url = "https://github.com/{{ $cb.repo }}/releases/download/{{ $cb.tag }}/{{ $cb.asset }}"
+    checksum.sha256 = "{{ $cb.sha256 }}"
+{{- else }}
+    url = "https://github.com/steipete/CodexBar/releases/download/v0.71.1/CodexBarCLI-v0.71.1-linux-musl-x86_64.tar.gz"
+    checksum.sha256 = "030d17d1b6b59937462067518106970778b02ab74d619e09980c03b9e4a44d9f"
+{{- end }}
+    # not exact: CodexBar keeps runtime state (.cookies.shared) next to its binary
+{{ end -}}

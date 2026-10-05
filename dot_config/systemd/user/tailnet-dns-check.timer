@@ -1,0 +1,9 @@
+[Unit]
+Description=Tailnet DNS check every 5 minutes (Uptime Kuma push monitor)
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
