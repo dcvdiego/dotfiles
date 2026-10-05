@@ -28,3 +28,7 @@ font-feature = liga
 desktop-notifications = true
 # Send Option key as Alt so herdr/tmux alt bindings (e.g. prefix+alt+g) work
 macos-option-as-alt = true
+
+# herdr-agent-usage icons
+font-codepoint-map = U+E1A0-U+E1B6="Herdr Agent Icons Max"
+font-codepoint-map = U+E1C0-U+E1C5="Herdr Agent Icons Max"

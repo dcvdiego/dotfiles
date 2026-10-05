@@ -470,3 +470,6 @@ hj() { herdr "$@" | jnv; }
 
 # navi widget (shell integration)
 eval "$(navi widget zsh)"
+
+# worktrunk shell integration (cd into worktrees on wt switch)
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi

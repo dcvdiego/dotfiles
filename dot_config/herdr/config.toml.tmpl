@@ -113,3 +113,23 @@ type = "plugin_action"
 command = "jhochenbaum.hunkdiff.review:pick"
 description = "hunk: pick a repository and base to review"
 # END jhochenbaum.hunkdiff
+
+# worktrunk: override herdr's built-in worktree create (prefix+shift+g) with wt's
+# switch/create picker (lifecycle hooks, base selection); remove + merge alongside
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "worktrunk.open"
+description = "Worktree: switch / create from default branch"
+
+[[keys.command]]
+key = "prefix+shift+d"
+type = "plugin_action"
+command = "worktrunk.remove"
+description = "Worktree: remove"
+
+[[keys.command]]
+key = "prefix+shift+m"
+type = "plugin_action"
+command = "worktrunk.merge"
+description = "Worktree: merge into the target branch"

@@ -16,3 +16,5 @@ herdr_plugins:
   # model/context/quota per agent in the Agent sidebar; builds with cargo (agents: mise rust),
   # soft-fails where there is no Rust. Its sidebar rows live in dot_config/herdr/config.toml.tmpl.
   - levi-qiao/herdr-agent-usage
+  # worktree switch/create/remove/merge via worktrunk (wt); requires wt (brew worktrunk) + fzf + jq
+  - devashish2203/herdr-worktrunk

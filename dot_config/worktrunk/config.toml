@@ -1,0 +1,7 @@
+# Worktrunk — canonical worktree layout: <org>/.worktrees/<repo>-<branch>
+# Matches the convention agent sessions already use.
+worktree-path = "{{ repo_path }}/../.worktrees/{{ repo }}-{{ branch | sanitize }}"
+
+# LLM commit messages via opencode (haiku, fast variant)
+[commit.generation]
+command = "opencode run -m anthropic/claude-haiku-4.5 --variant fast"
