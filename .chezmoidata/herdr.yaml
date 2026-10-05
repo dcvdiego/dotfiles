@@ -3,6 +3,8 @@
 # Adding/removing an entry here re-triggers the installer.
 # Note: there is no `herdr plugin update` - install is the update (replaces in place).
 herdr_plugins:
+  # personal fork of jhochenbaum/hunkdiff (plugin_id stays jhochenbaum.hunkdiff)
+  - dcvdiego/herdr-hunk-diff
   - cloudmanic/herdr-plus
   # zoetrope's manifest lives in a repo subdir (install spec supports owner/repo/subdir)
   - furkankly/zoetrope/herdr-plugin

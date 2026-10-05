@@ -26,6 +26,67 @@ description = "herdr-plus quick actions"
 [ui.toast]
 delivery = "system"
 
+{{ if eq .chezmoi.hostname "agents" -}}
+# herdr-codexbar sidebar (agents box only: requires the herdr-codexbar tokens)
+[ui.sidebar.agents]
+row_gap = 1  # herdr-codexbar
+rows = [
+  [
+    { token = "state_icon", dim = false },
+    { token = "workspace", fg = "#FEFEFE", dim = false },
+    { token = "tab", fg = "#FEFEFE", dim = false },
+  ],
+  [
+    { token = "agent", fg = "#FEFEFE", dim = false },
+    { token = "$hc_plan", fg = "#FFD700", dim = false },
+    { token = "$hc_pool", fg = "#FEFEFE", dim = false },
+  ],
+  [
+    { token = "$hc_model", fg = "#B695F3", dim = false },
+    { token = "$hc_effort", fg = "#B695F3", dim = false },
+    { token = "$hc_context_1", fg = "#EAEAEA", dim = false },
+    { token = "$hc_context_2", fg = "#F3FA9A", dim = false },
+    { token = "$hc_context_3", fg = "#F09995", dim = false },
+    { token = "$hc_context_4", fg = "#EC625C", dim = false },
+    { token = "$hc_tokens", fg = "#FEFEFE", dim = false },
+  ],
+  [
+    { token = "$hc_q1_label", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q1_bar", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q1_bar_reserve", fg = "#85F789", dim = false },
+    { token = "$hc_q1_bar_pace", fg = "#A1E7FA", dim = false },
+    { token = "$hc_q1_bar_deficit", fg = "#EC625C", dim = false },
+    { token = "$hc_q1_left", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q1_pace", fg = "#FEFEFE", dim = false, rules = [{ contains = "reserve", fg = "#85F789" }, { contains = "on pace", fg = "#A1E7FA" }, { contains = "deficit", fg = "#EC625C" }] },
+    { token = "$hc_q1_reset", fg = "#FEFEFE", dim = false },
+  ],
+  [
+    { token = "$hc_q2_label", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q2_bar", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q2_bar_reserve", fg = "#85F789", dim = false },
+    { token = "$hc_q2_bar_pace", fg = "#A1E7FA", dim = false },
+    { token = "$hc_q2_bar_deficit", fg = "#EC625C", dim = false },
+    { token = "$hc_q2_left", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q2_pace", fg = "#FEFEFE", dim = false, rules = [{ contains = "reserve", fg = "#85F789" }, { contains = "on pace", fg = "#A1E7FA" }, { contains = "deficit", fg = "#EC625C" }] },
+    { token = "$hc_q2_reset", fg = "#FEFEFE", dim = false },
+  ],
+  [
+    { token = "$hc_q3_label", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q3_bar", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q3_bar_reserve", fg = "#85F789", dim = false },
+    { token = "$hc_q3_bar_pace", fg = "#A1E7FA", dim = false },
+    { token = "$hc_q3_bar_deficit", fg = "#EC625C", dim = false },
+    { token = "$hc_q3_left", fg = "#FEFEFE", dim = false },
+    { token = "$hc_q3_pace", fg = "#FEFEFE", dim = false, rules = [{ contains = "reserve", fg = "#85F789" }, { contains = "on pace", fg = "#A1E7FA" }, { contains = "deficit", fg = "#EC625C" }] },
+    { token = "$hc_q3_reset", fg = "#FEFEFE", dim = false },
+  ],
+]
+
+[ui]
+sidebar_width = 70  # herdr-codexbar
+sidebar_max_width = 80  # herdr-codexbar
+{{- end }}
+
 [theme]
 name = "terminal"
 auto_switch = false
