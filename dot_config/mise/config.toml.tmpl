@@ -12,8 +12,9 @@ node = "lts"
 "npm:@opencode/cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
 # omp (oh-my-pi): prebuilt release binaries, no bun needed
 "github:can1357/oh-my-pi" = "latest"
-# herdr-codexbar (needs 3.11+) runs on this, via ~/.local/bin/herdr-codexbar
 python = "3.13"
+# herdr-agent-usage (herdr plugin) builds with cargo; its rust-toolchain.toml pins the version
+rust = "stable"
 
 [settings]
 # plain npm so the per-tool npm_args above apply (aube ignores them)

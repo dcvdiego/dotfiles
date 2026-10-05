@@ -3,7 +3,8 @@
 # Adding/removing an entry here re-triggers the installer.
 # Note: there is no `herdr plugin update` - install is the update (replaces in place).
 herdr_plugins:
-  # personal fork of jhochenbaum/hunkdiff (plugin_id stays jhochenbaum.hunkdiff)
+  # personal fork of jhochenbaum/hunkdiff (plugin_id stays jhochenbaum.hunkdiff); installed at
+  # its carry pin (.chezmoidata/carry.yaml) so carried PRs (#20 review picker) are included
   - dcvdiego/herdr-hunk-diff
   - cloudmanic/herdr-plus
   # zoetrope's manifest lives in a repo subdir (install spec supports owner/repo/subdir)
@@ -12,3 +13,6 @@ herdr_plugins:
   - AltanS/collie
   - nicosuave/memex
   - robbyrussell/herdr-ohmyzsh
+  # model/context/quota per agent in the Agent sidebar; builds with cargo (agents: mise rust),
+  # soft-fails where there is no Rust. Its sidebar rows live in dot_config/herdr/config.toml.tmpl.
+  - levi-qiao/herdr-agent-usage

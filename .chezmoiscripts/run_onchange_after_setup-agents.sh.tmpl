@@ -7,7 +7,6 @@
 #   watch {{ include "dot_config/systemd/user/codexbar-watch.service" | sha256sum }}
 #   hook  {{ include "dot_local/bin/executable_quota-notify" | sha256sum }}
 #   herdr {{ include "dot_config/systemd/user/herdr-server.service" | sha256sum }}
-#   hcb   {{ include "dot_local/bin/executable_herdr-codexbar" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.service" | sha256sum }} {{ include "dot_config/systemd/user/herdr-codexbar.timer" | sha256sum }}
 #   dns   {{ include "dot_config/systemd/user/tailnet-dns-check.timer" | sha256sum }} {{ include "dot_local/bin/executable_tailnet-dns-check" | sha256sum }}
 #   mise  {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
 set -eu
@@ -67,33 +66,14 @@ elif [ ! -f "$collie_env" ]; then
     echo "tailscale not logged in: skipped Collie .env; run 'tailscale up' then 'chezmoi apply'"
 fi
 
-# Forked tools come from .chezmoidata/carry.yaml, written by dcvdiego/carry as a
-# PR: the fork's carry/main while upstream work is carried, upstream once it's
-# all released. Pinned revs, since these run inside every agent.
-{{- $hcb := index .carry "herdr-codexbar" }}
-{{- $hunk := index .carry "herdr-hunk-diff" }}
-
-# herdr-codexbar: CodexBar quota under each agent in herdr's sidebar.
-hcb="$HOME/.local/share/herdr-codexbar"
-[ -d "$hcb/.git" ] || git clone -q "https://github.com/{{ $hcb.repo }}" "$hcb"
-git -C "$hcb" remote set-url origin "https://github.com/{{ $hcb.repo }}"
-git -C "$hcb" fetch -q origin {{ $hcb.rev }} && git -C "$hcb" checkout -q {{ $hcb.rev }}
-
-# herdr-hunk-diff: review agent diffs in hunk, send comments back to the agent.
-hunk_pin="{{ $hunk.repo }}@{{ $hunk.rev }}"
-hunk_state="$HOME/.local/state/carry/herdr-hunk-diff"
-if [ "$(cat "$hunk_state" 2>/dev/null)" != "$hunk_pin" ]; then
-    herdr plugin uninstall jhochenbaum.hunkdiff --yes >/dev/null 2>&1 || true
-    herdr plugin install {{ $hunk.repo }} --ref {{ $hunk.rev }} --yes
-    mkdir -p "$(dirname "$hunk_state")" && echo "$hunk_pin" >"$hunk_state"
-fi
+# Forked herdr plugins (hunk at its carry pin) and herdr-agent-usage are installed by
+# run_onchange_after-herdr-plugins.sh.tmpl from .chezmoidata/herdr.yaml.
 
 systemctl --user daemon-reload
 systemctl --user enable --now herdr-server.service codexbar-serve.service codexbar-watch.service
 
-# herdr's own agent-state integrations, then herdr-codexbar's hooks (both idempotent)
+# herdr's own agent-state integrations (herdr-agent-usage reads agent state through them)
 for i in claude antigravity-cli opencode pi omp; do herdr integration install "$i" >/dev/null; done
-"$HOME/.local/bin/herdr-codexbar" setup >/dev/null
 # opencode v2 ignores "./name" entries in cli.json (they don't resolve against
 # the config dir), so declare local plugins by absolute path instead.
 oc_cli="$HOME/.config/opencode/cli.json"
@@ -104,7 +84,6 @@ if [ -f "$oc_cli" ]; then
                    | reduce .[] as $p ([]; if index([$p]) then . else . + [$p] end))' \
       "$oc_cli" >"$oc_cli.tmp" && mv "$oc_cli.tmp" "$oc_cli"
 fi
-systemctl --user enable --now herdr-codexbar.timer
 # Uptime Kuma push monitor for the tailnet resolver; needs the token file (homelab docs/networking.md)
 [ -f "$HOME/.config/homelab/kuma-push.env" ] && systemctl --user enable --now tailnet-dns-check.timer
 systemctl --user restart codexbar-serve.service codexbar-watch.service

@@ -5,10 +5,22 @@ set -eu
 # Install herdr plugins declared in .chezmoidata/herdr.yaml.
 # `herdr plugin install` is idempotent and replaces the existing plugin in place.
 # Soft-fail each entry so one unreachable repo does not block a full apply.
+# A plugin whose repo has a carry pin (.chezmoidata/carry.yaml, written by dcvdiego/carry)
+# is installed at that rev: the fork's carry/main, i.e. upstream plus carried PRs.
+{{ $carry := get . "carry" | default dict -}}
 {{ range .herdr_plugins -}}
-echo "herdr plugin: {{ . }}"
-if ! herdr plugin install "{{ . }}" --yes >/dev/null 2>&1; then
-    echo "  WARN: failed to install herdr plugin {{ . }}" >&2
+{{ $spec := . -}}
+{{ $ref := "" -}}
+{{ range $name, $pin := $carry }}{{ if eq $pin.repo $spec }}{{ $ref = $pin.rev }}{{ end }}{{ end -}}
+echo "herdr plugin: {{ $spec }}{{ if $ref }} @ {{ $ref }}{{ end }}"
+if ! herdr plugin install "{{ $spec }}"{{ if $ref }} --ref {{ $ref }}{{ end }} --yes >/dev/null 2>&1; then
+    echo "  WARN: failed to install herdr plugin {{ $spec }}" >&2
+{{- if eq $spec "levi-qiao/herdr-agent-usage" }}
+else
+    # installs its reversible collectors and hooks (what its ./install.sh runs after linking)
+    herdr plugin action invoke configure --plugin herdr-agent-usage >/dev/null 2>&1 \
+        || echo "  WARN: herdr-agent-usage configure failed" >&2
+{{- end }}
 fi
 {{ end -}}
 echo "herdr plugins installed."
