@@ -1,0 +1,12 @@
+# herdr plugins (all public GitHub sources), installed idempotently on every
+# machine that has herdr by .chezmoiscripts/run_onchange_after-herdr-plugins.sh.tmpl.
+# Adding/removing an entry here re-triggers the installer.
+# Note: there is no `herdr plugin update` - install is the update (replaces in place).
+herdr_plugins:
+  - cloudmanic/herdr-plus
+  # zoetrope's manifest lives in a repo subdir (install spec supports owner/repo/subdir)
+  - furkankly/zoetrope/herdr-plugin
+  - kryptamine/herdr-auto-title
+  - AltanS/collie
+  - nicosuave/memex
+  - robbyrussell/herdr-ohmyzsh

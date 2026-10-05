@@ -1,0 +1,15 @@
+{{ if lookPath "herdr" -}}
+#!/bin/sh
+set -eu
+
+# Install herdr plugins declared in .chezmoidata/herdr.yaml.
+# `herdr plugin install` is idempotent and replaces the existing plugin in place.
+# Soft-fail each entry so one unreachable repo does not block a full apply.
+{{ range .herdr_plugins -}}
+echo "herdr plugin: {{ . }}"
+if ! herdr plugin install "{{ . }}" --yes >/dev/null 2>&1; then
+    echo "  WARN: failed to install herdr plugin {{ . }}" >&2
+fi
+{{ end -}}
+echo "herdr plugins installed."
+{{ end -}}
