@@ -10,7 +10,7 @@ fi
 # Full macOS state (taps, formulae, casks, vscode extensions).
 # Brewfile content is embedded so this script re-runs whenever it changes.
 brew bundle --file=/dev/stdin <<'BREWEOF'
-{{ include "Brewfile" | trim -}}
+{{ include "Brewfile" -}}
 BREWEOF
 {{ else if eq .chezmoi.os "linux" -}}
 {{ $agents := eq (includeTemplate "role" .) "agents" -}}
