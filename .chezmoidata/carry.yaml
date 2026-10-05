@@ -1,5 +1,12 @@
 # Written by https://github.com/dcvdiego/carry; edit carry.toml there instead.
 carry:
+  codexbar:
+    source: "fork"
+    repo: "dcvdiego/CodexBar"
+    rev: "865d7d3f7c18f825544b588f9f7589cfca454ee2"
+    tag: "v0.72.0-carry.865d7d3f7c18"
+    asset: "CodexBarCLI-v0.72.0-carry.865d7d3f7c18-linux-musl-x86_64.tar.gz"
+    sha256: "2eb9df0b7c9016b7efea738ecb7df550a52b23c313220f5c379f80eb0a42b210"
   herdr-codexbar:
     source: "fork"
     repo: "dcvdiego/herdr-codexbar"
