@@ -1,0 +1,56 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+space"
+
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "{{ .chezmoi.homeDir }}/.local/bin/hlazygit"
+description = "lazygit popup (repo-aware)"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+alt+p"
+type = "plugin_action"
+command = "cloudmanic.herdr-plus.projects"
+description = "herdr-plus project picker"
+
+[[keys.command]]
+key = "prefix+alt+a"
+type = "plugin_action"
+command = "cloudmanic.herdr-plus.quick-actions"
+description = "herdr-plus quick actions"
+
+[ui.toast]
+delivery = "system"
+
+[theme]
+name = "terminal"
+auto_switch = false
+
+# >>> furkankly.zoetrope keys (managed: `setup-keys` writes this block, `remove-keys` deletes it)
+[[keys.command]]
+key = "prefix+shift+z"
+type = "plugin_action"
+command = "furkankly.zoetrope.open"
+description = "zoetrope: session graph (overlay)"
+
+# The graph opens over the focused pane and gives the layout back when
+# it closes. The same key closes it. Two other placements, if you would
+# rather keep the graph on screen: uncomment one, or point the binding
+# above at its action. Then: herdr server reload-config
+# [[keys.command]]
+# key = "prefix+shift+v"
+# type = "plugin_action"
+# command = "furkankly.zoetrope.open-split"
+# description = "zoetrope: session graph (split)"
+
+# [[keys.command]]
+# key = "prefix+shift+c"
+# type = "plugin_action"
+# command = "furkankly.zoetrope.open-tab"
+# description = "zoetrope: session graph (tab)"
+
+# <<< furkankly.zoetrope keys

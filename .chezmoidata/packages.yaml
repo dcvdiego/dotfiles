@@ -50,6 +50,7 @@ packages:
   - redis
   - azure-cli
   # tuis & system utils
+  - herdr
   - btop
   - fastfetch
   - neovim
