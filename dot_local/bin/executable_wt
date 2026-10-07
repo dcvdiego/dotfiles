@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+// Keep Worktrunk authoritative; only attach task provenance before its hooks run.
+import { spawn } from "node:child_process";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { homedir } from "node:os";
+import { delimiter, dirname, join } from "node:path";
+
+const args = process.argv.slice(2);
+const self = realpathSync(process.argv[1]);
+const real = process.env.HUNK_WORKTRUNK_REAL || (process.env.PATH || "").split(delimiter)
+  .map((dir) => join(dir, "wt"))
+  .find((file) => { try { return realpathSync(file) !== self; } catch { return false; } });
+let helper;
+try {
+  const config = process.env.HERDR_CONFIG_PATH
+    ? dirname(process.env.HERDR_CONFIG_PATH)
+    : join(process.env.XDG_CONFIG_HOME || join(homedir(), ".config"), "herdr");
+  const plugins = JSON.parse(readFileSync(join(config, "plugins.json"), "utf8"));
+  const plugin = plugins.find((p) => p.plugin_id === "jhochenbaum.hunkdiff" && p.enabled);
+  const path = plugin && join(plugin.plugin_root, "dist", "bin", "worktrunk.js");
+  if (path && existsSync(path)) helper = path;
+} catch { /* Uninstalled plugin: ordinary wt remains available. */ }
+const hook = args[0] === "--hunk-hook";
+if ((!hook && !real) || (hook && !helper && process.env.HUNK_WORKTRUNK_CONTEXT)) {
+  console.error("wt: missing Worktrunk binary or task hook helper");
+  process.exit(1);
+}
+if (hook && !helper) process.exit(0);
+const bin = helper ? process.execPath : real;
+const argv = helper ? [helper, ...(hook ? ["hook"] : ["run", real, ...args])] : args;
+const child = spawn(bin, argv, { stdio: "inherit" });
+child.on("error", (error) => { console.error(String(error)); process.exitCode = 1; });
+process.on("SIGINT", () => child.kill("SIGINT"));
+process.on("SIGTERM", () => child.kill("SIGTERM"));
+child.on("close", (code, signal) => { process.exitCode = code ?? (signal === "SIGINT" ? 130 : 143); });

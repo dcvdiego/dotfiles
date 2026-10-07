@@ -2,6 +2,11 @@
 # Matches the convention agent sessions already use.
 worktree-path = "{{ repo_path }}/../.worktrees/{{ repo }}-{{ branch | sanitize }}"
 
+# The PATH shim snapshots the originating task before wt starts. Worktrunk passes
+# the actual destination path as JSON on stdin, including switches to existing trees.
+[post-switch]
+hunk-task = '"$HOME/.local/bin/wt" --hunk-hook'
+
 # LLM commit messages via opencode (haiku, fast variant)
 [commit.generation]
 command = "opencode run -m anthropic/claude-haiku-4.5 --variant fast"
