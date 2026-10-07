@@ -38,8 +38,9 @@ rows = [[{ token = "$quota_group", bold = true, dim = false }], [{ token = "$quo
 [ui]
 agent_panel_sort = "spaces" # herdr-agent-usage
 
-{{ if eq .chezmoi.hostname "agents" -}}
-# its plugin actions exist only where the plugin is installed
+{{ if or (eq .chezmoi.hostname "agents") (eq .chezmoi.hostname "MBPMBP") -}}
+# its plugin actions exist only where the plugin is installed; configure writes
+# these same three bindings on every machine that runs it
 [[keys.command]]
 key = "prefix+shift+r"
 type = "plugin_action"
@@ -51,6 +52,12 @@ key = "prefix+shift+q"
 type = "plugin_action"
 command = "herdr-agent-usage.open-settings"
 description = "open agent quota settings"
+
+[[keys.command]]
+key = "prefix+shift+o"
+type = "plugin_action"
+command = "herdr-agent-usage.toggle-agent-order"
+description = "toggle agent order: quota / tabs"
 {{- end }}
 
 [theme]
